@@ -21,9 +21,7 @@
 #ifdef TEST_MAIN
 #include "SDL_config.h"
 #else
-
 #include "../SDL_internal.h"
-
 #endif
 
 #if defined(__WIN32__) || defined(__WINRT__)
@@ -43,9 +41,7 @@
 #include "SDL_assert.h"
 
 #ifdef HAVE_SYSCONF
-
 #include <unistd.h>
-
 #endif
 #ifdef HAVE_SYSCTLBYNAME
 #include <sys/types.h>
@@ -114,96 +110,97 @@ illegal_instruction(int sig)
 #endif /* HAVE_SETJMP */
 
 static int
-CPU_haveCPUID(void) {
+CPU_haveCPUID(void)
+{
     int has_CPUID = 0;
 
 /* *INDENT-OFF* */
 #ifndef SDL_CPUINFO_DISABLED
 #if defined(__GNUC__) && defined(i386)
     __asm__ (
-    "        pushfl                      # Get original EFLAGS             \n"
-    "        popl    %%eax                                                 \n"
-    "        movl    %%eax,%%ecx                                           \n"
-    "        xorl    $0x200000,%%eax     # Flip ID bit in EFLAGS           \n"
-    "        pushl   %%eax               # Save new EFLAGS value on stack  \n"
-    "        popfl                       # Replace current EFLAGS value    \n"
-    "        pushfl                      # Get new EFLAGS                  \n"
-    "        popl    %%eax               # Store new EFLAGS in EAX         \n"
-    "        xorl    %%ecx,%%eax         # Can not toggle ID bit,          \n"
-    "        jz      1f                  # Processor=80486                 \n"
-    "        movl    $1,%0               # We have CPUID support           \n"
-    "1:                                                                    \n"
+"        pushfl                      # Get original EFLAGS             \n"
+"        popl    %%eax                                                 \n"
+"        movl    %%eax,%%ecx                                           \n"
+"        xorl    $0x200000,%%eax     # Flip ID bit in EFLAGS           \n"
+"        pushl   %%eax               # Save new EFLAGS value on stack  \n"
+"        popfl                       # Replace current EFLAGS value    \n"
+"        pushfl                      # Get new EFLAGS                  \n"
+"        popl    %%eax               # Store new EFLAGS in EAX         \n"
+"        xorl    %%ecx,%%eax         # Can not toggle ID bit,          \n"
+"        jz      1f                  # Processor=80486                 \n"
+"        movl    $1,%0               # We have CPUID support           \n"
+"1:                                                                    \n"
     : "=m" (has_CPUID)
     :
     : "%eax", "%ecx"
     );
 #elif defined(__GNUC__) && defined(__x86_64__)
-    /* Technically, if this is being compiled under __x86_64__ then it has
-       CPUid by definition.  But it's nice to be able to prove it.  :)      */
-        __asm__ (
-    "        pushfq                      # Get original EFLAGS             \n"
-    "        popq    %%rax                                                 \n"
-    "        movq    %%rax,%%rcx                                           \n"
-    "        xorl    $0x200000,%%eax     # Flip ID bit in EFLAGS           \n"
-    "        pushq   %%rax               # Save new EFLAGS value on stack  \n"
-    "        popfq                       # Replace current EFLAGS value    \n"
-    "        pushfq                      # Get new EFLAGS                  \n"
-    "        popq    %%rax               # Store new EFLAGS in EAX         \n"
-    "        xorl    %%ecx,%%eax         # Can not toggle ID bit,          \n"
-    "        jz      1f                  # Processor=80486                 \n"
-    "        movl    $1,%0               # We have CPUID support           \n"
-    "1:                                                                    \n"
-        : "=m" (has_CPUID)
-        :
-        : "%rax", "%rcx"
-        );
+/* Technically, if this is being compiled under __x86_64__ then it has 
+   CPUid by definition.  But it's nice to be able to prove it.  :)      */
+    __asm__ (
+"        pushfq                      # Get original EFLAGS             \n"
+"        popq    %%rax                                                 \n"
+"        movq    %%rax,%%rcx                                           \n"
+"        xorl    $0x200000,%%eax     # Flip ID bit in EFLAGS           \n"
+"        pushq   %%rax               # Save new EFLAGS value on stack  \n"
+"        popfq                       # Replace current EFLAGS value    \n"
+"        pushfq                      # Get new EFLAGS                  \n"
+"        popq    %%rax               # Store new EFLAGS in EAX         \n"
+"        xorl    %%ecx,%%eax         # Can not toggle ID bit,          \n"
+"        jz      1f                  # Processor=80486                 \n"
+"        movl    $1,%0               # We have CPUID support           \n"
+"1:                                                                    \n"
+    : "=m" (has_CPUID)
+    :
+    : "%rax", "%rcx"
+    );
 #elif (defined(_MSC_VER) && defined(_M_IX86)) || defined(__WATCOMC__)
-        __asm {
-            pushfd                      ; Get original EFLAGS
-            pop     eax
-            mov     ecx, eax
-            xor     eax, 200000h        ; Flip ID bit in EFLAGS
-            push    eax                 ; Save new EFLAGS value on stack
-            popfd                       ; Replace current EFLAGS value
-            pushfd                      ; Get new EFLAGS
-            pop     eax                 ; Store new EFLAGS in EAX
-            xor     eax, ecx            ; Can not toggle ID bit,
-            jz      done                ; Processor=80486
-            mov     has_CPUID,1         ; We have CPUID support
-    done:
-        }
+    __asm {
+        pushfd                      ; Get original EFLAGS
+        pop     eax
+        mov     ecx, eax
+        xor     eax, 200000h        ; Flip ID bit in EFLAGS
+        push    eax                 ; Save new EFLAGS value on stack
+        popfd                       ; Replace current EFLAGS value
+        pushfd                      ; Get new EFLAGS
+        pop     eax                 ; Store new EFLAGS in EAX
+        xor     eax, ecx            ; Can not toggle ID bit,
+        jz      done                ; Processor=80486
+        mov     has_CPUID,1         ; We have CPUID support
+done:
+    }
 #elif defined(_MSC_VER) && defined(_M_X64)
-        has_CPUID = 1;
+    has_CPUID = 1;
 #elif defined(__sun) && defined(__i386)
-        __asm (
-    "       pushfl                 \n"
-    "       popl    %eax           \n"
-    "       movl    %eax,%ecx      \n"
-    "       xorl    $0x200000,%eax \n"
-    "       pushl   %eax           \n"
-    "       popfl                  \n"
-    "       pushfl                 \n"
-    "       popl    %eax           \n"
-    "       xorl    %ecx,%eax      \n"
-    "       jz      1f             \n"
-    "       movl    $1,-8(%ebp)    \n"
-    "1:                            \n"
-        );
+    __asm (
+"       pushfl                 \n"
+"       popl    %eax           \n"
+"       movl    %eax,%ecx      \n"
+"       xorl    $0x200000,%eax \n"
+"       pushl   %eax           \n"
+"       popfl                  \n"
+"       pushfl                 \n"
+"       popl    %eax           \n"
+"       xorl    %ecx,%eax      \n"
+"       jz      1f             \n"
+"       movl    $1,-8(%ebp)    \n"
+"1:                            \n"
+    );
 #elif defined(__sun) && defined(__amd64)
-        __asm (
-    "       pushfq                 \n"
-    "       popq    %rax           \n"
-    "       movq    %rax,%rcx      \n"
-    "       xorl    $0x200000,%eax \n"
-    "       pushq   %rax           \n"
-    "       popfq                  \n"
-    "       pushfq                 \n"
-    "       popq    %rax           \n"
-    "       xorl    %ecx,%eax      \n"
-    "       jz      1f             \n"
-    "       movl    $1,-8(%rbp)    \n"
-    "1:                            \n"
-        );
+    __asm (
+"       pushfq                 \n"
+"       popq    %rax           \n"
+"       movq    %rax,%rcx      \n"
+"       xorl    $0x200000,%eax \n"
+"       pushq   %rax           \n"
+"       popfq                  \n"
+"       pushfq                 \n"
+"       popq    %rax           \n"
+"       xorl    %ecx,%eax      \n"
+"       jz      1f             \n"
+"       movl    $1,-8(%rbp)    \n"
+"1:                            \n"
+    );
 #endif
 #endif
 /* *INDENT-ON* */
@@ -260,7 +257,8 @@ static SDL_bool CPU_OSSavesYMM = SDL_FALSE;
 static SDL_bool CPU_OSSavesZMM = SDL_FALSE;
 
 static void
-CPU_calcCPUIDFeatures(void) {
+CPU_calcCPUIDFeatures(void)
+{
     static SDL_bool checked = SDL_FALSE;
     if (!checked) {
         checked = SDL_TRUE;
@@ -291,8 +289,7 @@ CPU_calcCPUIDFeatures(void) {
                     }
 #endif
                     CPU_OSSavesYMM = ((a & 6) == 6) ? SDL_TRUE : SDL_FALSE;
-                    CPU_OSSavesZMM = (CPU_OSSavesYMM && ((a & 0xe0) == 0xe0)) ? SDL_TRUE
-                                                                              : SDL_FALSE;
+                    CPU_OSSavesZMM = (CPU_OSSavesYMM && ((a & 0xe0) == 0xe0)) ? SDL_TRUE : SDL_FALSE;
                 }
             }
         }
@@ -300,7 +297,8 @@ CPU_calcCPUIDFeatures(void) {
 }
 
 static int
-CPU_haveAltiVec(void) {
+CPU_haveAltiVec(void)
+{
     volatile int altivec = 0;
 #ifndef SDL_CPUINFO_DISABLED
 #if (defined(__MACOSX__) && (defined(__ppc__) || defined(__ppc64__))) || (defined(__OpenBSD__) && defined(__powerpc__))
@@ -349,19 +347,20 @@ readProcAuxvForNeon(void)
 
 
 static int
-CPU_haveNEON(void) {
+CPU_haveNEON(void)
+{
 /* The way you detect NEON is a privileged instruction on ARM, so you have
    query the OS kernel in a platform-specific way. :/ */
 #if defined(SDL_CPUINFO_DISABLED)
-    return 0; /* disabled */
+   return 0; /* disabled */
 #elif (defined(__WINDOWS__) || defined(__WINRT__)) && (defined(_M_ARM) || defined(_M_ARM64))
-    /* Visual Studio, for ARM, doesn't define __ARM_ARCH. Handle this first. */
-    /* Seems to have been removed */
+/* Visual Studio, for ARM, doesn't define __ARM_ARCH. Handle this first. */
+/* Seems to have been removed */
 #  if !defined(PF_ARM_NEON_INSTRUCTIONS_AVAILABLE)
 #    define PF_ARM_NEON_INSTRUCTIONS_AVAILABLE 19
 #  endif
-    /* All WinRT ARM devices are required to support NEON, but just in case. */
-        return IsProcessorFeaturePresent(PF_ARM_NEON_INSTRUCTIONS_AVAILABLE) != 0;
+/* All WinRT ARM devices are required to support NEON, but just in case. */
+    return IsProcessorFeaturePresent(PF_ARM_NEON_INSTRUCTIONS_AVAILABLE) != 0;
 #elif !defined(__ARM_ARCH)
     return 0;  /* not an ARM CPU at all. */
 #elif __ARM_ARCH >= 8
@@ -396,7 +395,8 @@ CPU_haveNEON(void) {
 }
 
 static int
-CPU_have3DNow(void) {
+CPU_have3DNow(void)
+{
     if (CPU_CPUIDMaxFunction > 0) {  /* that is, do we have CPUID at all? */
         int a, b, c, d;
         cpuid(0x80000000, a, b, c, d);
@@ -418,13 +418,11 @@ CPU_have3DNow(void) {
 #define CPU_haveAVX() (CPU_OSSavesYMM && (CPU_CPUIDFeatures[2] & 0x10000000))
 
 static int
-CPU_haveAVX2(void) {
+CPU_haveAVX2(void)
+{
     if (CPU_OSSavesYMM && (CPU_CPUIDMaxFunction >= 7)) {
         int a, b, c, d;
-        (void) a;
-        (void) b;
-        (void) c;
-        (void) d;  /* compiler warnings... */
+        (void) a; (void) b; (void) c; (void) d;  /* compiler warnings... */
         cpuid(7, a, b, c, d);
         return (b & 0x00000020);
     }
@@ -432,13 +430,11 @@ CPU_haveAVX2(void) {
 }
 
 static int
-CPU_haveAVX512F(void) {
+CPU_haveAVX512F(void)
+{
     if (CPU_OSSavesZMM && (CPU_CPUIDMaxFunction >= 7)) {
         int a, b, c, d;
-        (void) a;
-        (void) b;
-        (void) c;
-        (void) d;  /* compiler warnings... */
+        (void) a; (void) b; (void) c; (void) d;  /* compiler warnings... */
         cpuid(7, a, b, c, d);
         return (b & 0x00010000);
     }
@@ -448,12 +444,13 @@ CPU_haveAVX512F(void) {
 static int SDL_CPUCount = 0;
 
 int
-SDL_GetCPUCount(void) {
+SDL_GetCPUCount(void)
+{
     if (!SDL_CPUCount) {
 #ifndef SDL_CPUINFO_DISABLED
 #if defined(HAVE_SYSCONF) && defined(_SC_NPROCESSORS_ONLN)
         if (SDL_CPUCount <= 0) {
-            SDL_CPUCount = (int) sysconf(_SC_NPROCESSORS_ONLN);
+            SDL_CPUCount = (int)sysconf(_SC_NPROCESSORS_ONLN);
         }
 #endif
 #ifdef HAVE_SYSCTLBYNAME
@@ -486,7 +483,8 @@ SDL_GetCPUCount(void) {
 
 /* Oh, such a sweet sweet trick, just not very useful. :) */
 static const char *
-SDL_GetCPUType(void) {
+SDL_GetCPUType(void)
+{
     static char SDL_CPUType[13];
 
     if (!SDL_CPUType[0]) {
@@ -497,29 +495,20 @@ SDL_GetCPUType(void) {
             int a, b, c, d;
             cpuid(0x00000000, a, b, c, d);
             (void) a;
-            SDL_CPUType[i++] = (char) (b & 0xff);
-            b >>= 8;
-            SDL_CPUType[i++] = (char) (b & 0xff);
-            b >>= 8;
-            SDL_CPUType[i++] = (char) (b & 0xff);
-            b >>= 8;
-            SDL_CPUType[i++] = (char) (b & 0xff);
+            SDL_CPUType[i++] = (char)(b & 0xff); b >>= 8;
+            SDL_CPUType[i++] = (char)(b & 0xff); b >>= 8;
+            SDL_CPUType[i++] = (char)(b & 0xff); b >>= 8;
+            SDL_CPUType[i++] = (char)(b & 0xff);
 
-            SDL_CPUType[i++] = (char) (d & 0xff);
-            d >>= 8;
-            SDL_CPUType[i++] = (char) (d & 0xff);
-            d >>= 8;
-            SDL_CPUType[i++] = (char) (d & 0xff);
-            d >>= 8;
-            SDL_CPUType[i++] = (char) (d & 0xff);
+            SDL_CPUType[i++] = (char)(d & 0xff); d >>= 8;
+            SDL_CPUType[i++] = (char)(d & 0xff); d >>= 8;
+            SDL_CPUType[i++] = (char)(d & 0xff); d >>= 8;
+            SDL_CPUType[i++] = (char)(d & 0xff);
 
-            SDL_CPUType[i++] = (char) (c & 0xff);
-            c >>= 8;
-            SDL_CPUType[i++] = (char) (c & 0xff);
-            c >>= 8;
-            SDL_CPUType[i++] = (char) (c & 0xff);
-            c >>= 8;
-            SDL_CPUType[i++] = (char) (c & 0xff);
+            SDL_CPUType[i++] = (char)(c & 0xff); c >>= 8;
+            SDL_CPUType[i++] = (char)(c & 0xff); c >>= 8;
+            SDL_CPUType[i++] = (char)(c & 0xff); c >>= 8;
+            SDL_CPUType[i++] = (char)(c & 0xff);
         }
         if (!SDL_CPUType[0]) {
             SDL_strlcpy(SDL_CPUType, "Unknown", sizeof(SDL_CPUType));
@@ -605,13 +594,11 @@ SDL_GetCPUName(void)
 #endif
 
 int
-SDL_GetCPUCacheLineSize(void) {
+SDL_GetCPUCacheLineSize(void)
+{
     const char *cpuType = SDL_GetCPUType();
     int a, b, c, d;
-    (void) a;
-    (void) b;
-    (void) c;
-    (void) d;
+    (void) a; (void) b; (void) c; (void) d;
     if (SDL_strcmp(cpuType, "GenuineIntel") == 0) {
         cpuid(0x00000001, a, b, c, d);
         return (((b >> 8) & 0xff) * 8);
@@ -628,7 +615,8 @@ static Uint32 SDL_CPUFeatures = 0xFFFFFFFF;
 static Uint32 SDL_SIMDAlignment = 0xFFFFFFFF;
 
 static Uint32
-SDL_GetCPUFeatures(void) {
+SDL_GetCPUFeatures(void)
+{
     if (SDL_CPUFeatures == 0xFFFFFFFF) {
         CPU_calcCPUIDFeatures();
         SDL_CPUFeatures = 0;
@@ -690,80 +678,93 @@ SDL_GetCPUFeatures(void) {
 
 #define CPU_FEATURE_AVAILABLE(f) ((SDL_GetCPUFeatures() & f) ? SDL_TRUE : SDL_FALSE)
 
-SDL_bool SDL_HasRDTSC(void) {
+SDL_bool SDL_HasRDTSC(void)
+{
     return CPU_FEATURE_AVAILABLE(CPU_HAS_RDTSC);
 }
 
 SDL_bool
-SDL_HasAltiVec(void) {
+SDL_HasAltiVec(void)
+{
     return CPU_FEATURE_AVAILABLE(CPU_HAS_ALTIVEC);
 }
 
 SDL_bool
-SDL_HasMMX(void) {
+SDL_HasMMX(void)
+{
     return CPU_FEATURE_AVAILABLE(CPU_HAS_MMX);
 }
 
 SDL_bool
-SDL_Has3DNow(void) {
+SDL_Has3DNow(void)
+{
     return CPU_FEATURE_AVAILABLE(CPU_HAS_3DNOW);
 }
 
 SDL_bool
-SDL_HasSSE(void) {
+SDL_HasSSE(void)
+{
     return CPU_FEATURE_AVAILABLE(CPU_HAS_SSE);
 }
 
 SDL_bool
-SDL_HasSSE2(void) {
+SDL_HasSSE2(void)
+{
     return CPU_FEATURE_AVAILABLE(CPU_HAS_SSE2);
 }
 
 SDL_bool
-SDL_HasSSE3(void) {
+SDL_HasSSE3(void)
+{
     return CPU_FEATURE_AVAILABLE(CPU_HAS_SSE3);
 }
 
 SDL_bool
-SDL_HasSSE41(void) {
+SDL_HasSSE41(void)
+{
     return CPU_FEATURE_AVAILABLE(CPU_HAS_SSE41);
 }
 
 SDL_bool
-SDL_HasSSE42(void) {
+SDL_HasSSE42(void)
+{
     return CPU_FEATURE_AVAILABLE(CPU_HAS_SSE42);
 }
 
 SDL_bool
-SDL_HasAVX(void) {
+SDL_HasAVX(void)
+{
     return CPU_FEATURE_AVAILABLE(CPU_HAS_AVX);
 }
 
 SDL_bool
-SDL_HasAVX2(void) {
+SDL_HasAVX2(void)
+{
     return CPU_FEATURE_AVAILABLE(CPU_HAS_AVX2);
 }
 
 SDL_bool
-SDL_HasAVX512F(void) {
+SDL_HasAVX512F(void)
+{
     return CPU_FEATURE_AVAILABLE(CPU_HAS_AVX512F);
 }
 
 SDL_bool
-SDL_HasNEON(void) {
+SDL_HasNEON(void)
+{
     return CPU_FEATURE_AVAILABLE(CPU_HAS_NEON);
 }
 
 static int SDL_SystemRAM = 0;
 
 int
-SDL_GetSystemRAM(void) {
+SDL_GetSystemRAM(void)
+{
     if (!SDL_SystemRAM) {
 #ifndef SDL_CPUINFO_DISABLED
 #if defined(HAVE_SYSCONF) && defined(_SC_PHYS_PAGES) && defined(_SC_PAGESIZE)
         if (SDL_SystemRAM <= 0) {
-            SDL_SystemRAM = (int) ((Sint64) sysconf(_SC_PHYS_PAGES) * sysconf(_SC_PAGESIZE) /
-                                   (1024 * 1024));
+            SDL_SystemRAM = (int)((Sint64)sysconf(_SC_PHYS_PAGES) * sysconf(_SC_PAGESIZE) / (1024*1024));
         }
 #endif
 #ifdef HAVE_SYSCTLBYNAME
@@ -809,7 +810,8 @@ SDL_GetSystemRAM(void) {
 
 
 size_t
-SDL_SIMDGetAlignment(void) {
+SDL_SIMDGetAlignment(void)
+{
     if (SDL_SIMDAlignment == 0xFFFFFFFF) {
         SDL_GetCPUFeatures();  /* make sure this has been calculated */
     }
@@ -818,15 +820,16 @@ SDL_SIMDGetAlignment(void) {
 }
 
 void *
-SDL_SIMDAlloc(const size_t len) {
+SDL_SIMDAlloc(const size_t len)
+{
     const size_t alignment = SDL_SIMDGetAlignment();
     const size_t padding = alignment - (len % alignment);
     const size_t padded = (padding != alignment) ? (len + padding) : len;
     Uint8 *retval = NULL;
-    Uint8 *ptr = (Uint8 *) SDL_malloc(padded + alignment + sizeof(void *));
+    Uint8 *ptr = (Uint8 *) SDL_malloc(padded + alignment + sizeof (void *));
     if (ptr) {
         /* store the actual malloc pointer right before our aligned pointer. */
-        retval = ptr + sizeof(void *);
+        retval = ptr + sizeof (void *);
         retval += alignment - (((size_t) retval) % alignment);
         *(((void **) retval) - 1) = ptr;
     }
@@ -834,7 +837,8 @@ SDL_SIMDAlloc(const size_t len) {
 }
 
 void
-SDL_SIMDFree(void *ptr) {
+SDL_SIMDFree(void *ptr)
+{
     if (ptr) {
         void **realptr = (void **) ptr;
         realptr--;

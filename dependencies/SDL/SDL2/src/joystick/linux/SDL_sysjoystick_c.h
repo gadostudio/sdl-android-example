@@ -27,7 +27,8 @@
 struct SDL_joylist_item;
 
 /* The private structure used to keep track of a joystick */
-struct joystick_hwdata {
+struct joystick_hwdata
+{
     int fd;
     struct SDL_joylist_item *item;
     SDL_JoystickGUID guid;
@@ -38,18 +39,21 @@ struct joystick_hwdata {
     struct ff_effect effect;
 
     /* The current Linux joystick driver maps hats to two axes */
-    struct hwdata_hat {
+    struct hwdata_hat
+    {
         int axis[2];
     } *hats;
     /* The current Linux joystick driver maps balls to two axes */
-    struct hwdata_ball {
+    struct hwdata_ball
+    {
         int axis[2];
     } *balls;
 
     /* Support for the Linux 2.4 unified input interface */
     Uint8 key_map[KEY_MAX];
     Uint8 abs_map[ABS_MAX];
-    struct axis_correct {
+    struct axis_correct
+    {
         int used;
         int coef[3];
     } abs_correct[ABS_MAX];

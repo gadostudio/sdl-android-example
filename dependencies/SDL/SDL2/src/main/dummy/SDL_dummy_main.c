@@ -14,16 +14,15 @@ main(int argc, char *argv[])
     return (SDL_main(argc, argv));
 }
 #else
-
 /* Nothing to do on this platform */
 int
 SDL_main_stub_symbol(void);
 
 int
-SDL_main_stub_symbol(void) {
+SDL_main_stub_symbol(void)
+{
     return 0;
 }
-
 #endif
 
 /* vi: set ts=4 sw=4 expandtab: */

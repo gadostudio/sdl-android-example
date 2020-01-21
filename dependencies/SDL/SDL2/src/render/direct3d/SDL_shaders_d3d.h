@@ -29,7 +29,6 @@ typedef enum {
     NUM_SHADERS
 } D3D9_Shader;
 
-extern HRESULT D3D9_CreatePixelShader(IDirect3DDevice9 *d3dDevice, D3D9_Shader shader,
-                                      IDirect3DPixelShader9 **pixelShader);
+extern HRESULT D3D9_CreatePixelShader(IDirect3DDevice9 *d3dDevice, D3D9_Shader shader, IDirect3DPixelShader9 **pixelShader);
 
 /* vi: set ts=4 sw=4 expandtab: */

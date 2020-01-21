@@ -29,7 +29,8 @@
 /* Hidden "this" pointer for the audio functions */
 #define _THIS   SDL_AudioDevice *this
 
-struct SDL_PrivateAudioData {
+struct SDL_PrivateAudioData
+{
     /* The file descriptor for the audio device */
     SDL_RWops *io;
     Uint32 io_delay;

@@ -28,17 +28,11 @@
 #include "SDL_rect.h"
 
 extern SDL_bool SDL_IME_Init(void);
-
 extern void SDL_IME_Quit(void);
-
 extern void SDL_IME_SetFocus(SDL_bool focused);
-
 extern void SDL_IME_Reset(void);
-
 extern SDL_bool SDL_IME_ProcessKeyEvent(Uint32 keysym, Uint32 keycode);
-
 extern void SDL_IME_UpdateTextRect(SDL_Rect *rect);
-
 extern void SDL_IME_PumpEvents(void);
 
 #endif /* SDL_ime_h_ */

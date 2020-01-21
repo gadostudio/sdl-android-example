@@ -31,7 +31,8 @@
 /*
  * Haptic system hardware data.
  */
-struct haptic_hwdata {
+struct haptic_hwdata
+{
 #if SDL_HAPTIC_DINPUT
     LPDIRECTINPUTDEVICE8 device;
 #endif
@@ -49,7 +50,8 @@ struct haptic_hwdata {
 /*
  * Haptic system effect data.
  */
-struct haptic_hweffect {
+struct haptic_hweffect
+{
 #if SDL_HAPTIC_DINPUT
     DIEFFECT effect;
     LPDIRECTINPUTEFFECT ref;
@@ -62,7 +64,8 @@ struct haptic_hweffect {
 /*
 * List of available haptic devices.
 */
-typedef struct SDL_hapticlist_item {
+typedef struct SDL_hapticlist_item
+{
     char *name;
     SDL_Haptic *haptic;
 #if SDL_HAPTIC_DINPUT
@@ -77,7 +80,6 @@ typedef struct SDL_hapticlist_item {
 extern SDL_hapticlist_item *SDL_hapticlist;
 
 extern int SDL_SYS_AddHapticDevice(SDL_hapticlist_item *item);
-
 extern int SDL_SYS_RemoveHapticDevice(SDL_hapticlist_item *prev, SDL_hapticlist_item *item);
 
 #endif /* SDL_windowshaptic_c_h_ */

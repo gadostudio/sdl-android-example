@@ -1137,11 +1137,11 @@ METAL_QueueCopyEx(SDL_Renderer * renderer, SDL_RenderCommand *cmd, SDL_Texture *
 
 typedef struct
 {
-#if __has_feature(objc_arc)
+    #if __has_feature(objc_arc)
     __unsafe_unretained id<MTLRenderPipelineState> pipeline;
-#else
+    #else
     id<MTLRenderPipelineState> pipeline;
-#endif
+    #endif
     size_t constants_offset;
     SDL_Texture *texture;
     SDL_bool cliprect_dirty;
@@ -1275,9 +1275,9 @@ METAL_RunCommandQueue(SDL_Renderer * renderer, SDL_RenderCommand *cmd, void *ver
          * TODO: this buffer is also used for constants. Is performance still
          * good for those, or should we have a managed buffer for them? */
         mtlbufvertex = [data.mtldevice newBufferWithLength:vertsize options:MTLResourceStorageModeShared];
-#if !__has_feature(objc_arc)
+        #if !__has_feature(objc_arc)
         [mtlbufvertex autorelease];
-#endif
+        #endif
         mtlbufvertex.label = @"SDL vertex data";
         SDL_memcpy([mtlbufvertex contents], vertices, vertsize);
     }
@@ -1624,9 +1624,9 @@ METAL_CreateRenderer(SDL_Window * window, Uint32 flags)
     };
 
     id<MTLBuffer> mtlbufconstantstaging = [data.mtldevice newBufferWithLength:CONSTANTS_LENGTH options:MTLResourceStorageModeShared];
-#if !__has_feature(objc_arc)
+    #if !__has_feature(objc_arc)
     [mtlbufconstantstaging autorelease];
-#endif
+    #endif
 
     char *constantdata = [mtlbufconstantstaging contents];
     SDL_memcpy(constantdata + CONSTANTS_OFFSET_IDENTITY, identitytransform, sizeof(identitytransform));

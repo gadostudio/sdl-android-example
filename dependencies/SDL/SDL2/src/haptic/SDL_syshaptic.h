@@ -27,7 +27,8 @@
 #include "SDL_haptic.h"
 
 
-struct haptic_effect {
+struct haptic_effect
+{
     SDL_HapticEffect effect;    /* The current event */
     struct haptic_hweffect *hweffect;   /* The hardware behind the event */
 };
@@ -35,7 +36,8 @@ struct haptic_effect {
 /*
  * The real SDL_Haptic struct.
  */
-struct _SDL_Haptic {
+struct _SDL_Haptic
+{
     Uint8 index;                /* Stores index it is attached to */
 
     struct haptic_effect *effects;      /* Allocated effects */
@@ -73,7 +75,7 @@ extern const char *SDL_SYS_HapticName(int index);
  *
  * Returns 0 on success, -1 on error.
  */
-extern int SDL_SYS_HapticOpen(SDL_Haptic *haptic);
+extern int SDL_SYS_HapticOpen(SDL_Haptic * haptic);
 
 /*
  * Returns the index of the haptic core pointer or -1 if none is found.
@@ -86,7 +88,7 @@ int SDL_SYS_HapticMouse(void);
  * Returns >0 if haptic capabilities are detected, 0 if haptic
  * capabilities aren't detected and -1 on error.
  */
-extern int SDL_SYS_JoystickIsHaptic(SDL_Joystick *joystick);
+extern int SDL_SYS_JoystickIsHaptic(SDL_Joystick * joystick);
 
 /*
  * Opens the haptic device for usage using the same device as
@@ -94,21 +96,20 @@ extern int SDL_SYS_JoystickIsHaptic(SDL_Joystick *joystick);
  *
  * Returns 0 on success, -1 on error.
  */
-extern int SDL_SYS_HapticOpenFromJoystick(SDL_Haptic *haptic,
-                                          SDL_Joystick *joystick);
-
+extern int SDL_SYS_HapticOpenFromJoystick(SDL_Haptic * haptic,
+                                          SDL_Joystick * joystick);
 /*
  * Checks to see if haptic device and joystick device are the same.
  *
  * Returns 1 if they are the same, 0 if they aren't.
  */
-extern int SDL_SYS_JoystickSameHaptic(SDL_Haptic *haptic,
-                                      SDL_Joystick *joystick);
+extern int SDL_SYS_JoystickSameHaptic(SDL_Haptic * haptic,
+                                      SDL_Joystick * joystick);
 
 /*
  * Closes a haptic device after usage.
  */
-extern void SDL_SYS_HapticClose(SDL_Haptic *haptic);
+extern void SDL_SYS_HapticClose(SDL_Haptic * haptic);
 
 /*
  * Performs a cleanup on the haptic subsystem.
@@ -121,9 +122,9 @@ extern void SDL_SYS_HapticQuit(void);
  *
  * Returns 0 on success, -1 on error.
  */
-extern int SDL_SYS_HapticNewEffect(SDL_Haptic *haptic,
+extern int SDL_SYS_HapticNewEffect(SDL_Haptic * haptic,
                                    struct haptic_effect *effect,
-                                   SDL_HapticEffect *base);
+                                   SDL_HapticEffect * base);
 
 /*
  * Updates the haptic effect on the haptic device using data
@@ -131,16 +132,16 @@ extern int SDL_SYS_HapticNewEffect(SDL_Haptic *haptic,
  *
  * Returns 0 on success, -1 on error.
  */
-extern int SDL_SYS_HapticUpdateEffect(SDL_Haptic *haptic,
+extern int SDL_SYS_HapticUpdateEffect(SDL_Haptic * haptic,
                                       struct haptic_effect *effect,
-                                      SDL_HapticEffect *data);
+                                      SDL_HapticEffect * data);
 
 /*
  * Runs the effect on the haptic device.
  *
  * Returns 0 on success, -1 on error.
  */
-extern int SDL_SYS_HapticRunEffect(SDL_Haptic *haptic,
+extern int SDL_SYS_HapticRunEffect(SDL_Haptic * haptic,
                                    struct haptic_effect *effect,
                                    Uint32 iterations);
 
@@ -149,13 +150,13 @@ extern int SDL_SYS_HapticRunEffect(SDL_Haptic *haptic,
  *
  * Returns 0 on success, -1 on error.
  */
-extern int SDL_SYS_HapticStopEffect(SDL_Haptic *haptic,
+extern int SDL_SYS_HapticStopEffect(SDL_Haptic * haptic,
                                     struct haptic_effect *effect);
 
 /*
  * Cleanups up the effect on the haptic device.
  */
-extern void SDL_SYS_HapticDestroyEffect(SDL_Haptic *haptic,
+extern void SDL_SYS_HapticDestroyEffect(SDL_Haptic * haptic,
                                         struct haptic_effect *effect);
 
 /*
@@ -164,7 +165,7 @@ extern void SDL_SYS_HapticDestroyEffect(SDL_Haptic *haptic,
  * Returns 0 if device is stopped, >0 if device is playing and
  * -1 on error.
  */
-extern int SDL_SYS_HapticGetEffectStatus(SDL_Haptic *haptic,
+extern int SDL_SYS_HapticGetEffectStatus(SDL_Haptic * haptic,
                                          struct haptic_effect *effect);
 
 /*
@@ -172,35 +173,35 @@ extern int SDL_SYS_HapticGetEffectStatus(SDL_Haptic *haptic,
  *
  * Returns 0 on success, -1 on error.
  */
-extern int SDL_SYS_HapticSetGain(SDL_Haptic *haptic, int gain);
+extern int SDL_SYS_HapticSetGain(SDL_Haptic * haptic, int gain);
 
 /*
  * Sets the autocenter feature of the haptic device.
  *
  * Returns 0 on success, -1 on error.
  */
-extern int SDL_SYS_HapticSetAutocenter(SDL_Haptic *haptic, int autocenter);
+extern int SDL_SYS_HapticSetAutocenter(SDL_Haptic * haptic, int autocenter);
 
 /*
  * Pauses the haptic device.
  *
  * Returns 0 on success, -1 on error.
  */
-extern int SDL_SYS_HapticPause(SDL_Haptic *haptic);
+extern int SDL_SYS_HapticPause(SDL_Haptic * haptic);
 
 /*
  * Unpauses the haptic device.
  *
  * Returns 0 on success, -1 on error.
  */
-extern int SDL_SYS_HapticUnpause(SDL_Haptic *haptic);
+extern int SDL_SYS_HapticUnpause(SDL_Haptic * haptic);
 
 /*
  * Stops all the currently playing haptic effects on the device.
  *
  * Returns 0 on success, -1 on error.
  */
-extern int SDL_SYS_HapticStopAll(SDL_Haptic *haptic);
+extern int SDL_SYS_HapticStopAll(SDL_Haptic * haptic);
 
 #endif /* SDL_syshaptic_h_ */
 

@@ -28,12 +28,14 @@
 #include "SDL_dummyaudio.h"
 
 static int
-DUMMYAUDIO_OpenDevice(_THIS, void *handle, const char *devname, int iscapture) {
+DUMMYAUDIO_OpenDevice(_THIS, void *handle, const char *devname, int iscapture)
+{
     return 0;                   /* always succeeds. */
 }
 
 static int
-DUMMYAUDIO_CaptureFromDevice(_THIS, void *buffer, int buflen) {
+DUMMYAUDIO_CaptureFromDevice(_THIS, void *buffer, int buflen)
+{
     /* Delay to make this sort of simulate real audio input. */
     SDL_Delay((this->spec.samples * 1000) / this->spec.freq);
 
@@ -43,7 +45,8 @@ DUMMYAUDIO_CaptureFromDevice(_THIS, void *buffer, int buflen) {
 }
 
 static int
-DUMMYAUDIO_Init(SDL_AudioDriverImpl *impl) {
+DUMMYAUDIO_Init(SDL_AudioDriverImpl * impl)
+{
     /* Set the function pointers */
     impl->OpenDevice = DUMMYAUDIO_OpenDevice;
     impl->CaptureFromDevice = DUMMYAUDIO_CaptureFromDevice;
@@ -56,7 +59,7 @@ DUMMYAUDIO_Init(SDL_AudioDriverImpl *impl) {
 }
 
 AudioBootStrap DUMMYAUDIO_bootstrap = {
-        "dummy", "SDL dummy audio driver", DUMMYAUDIO_Init, 1
+    "dummy", "SDL dummy audio driver", DUMMYAUDIO_Init, 1
 };
 
 /* vi: set ts=4 sw=4 expandtab: */

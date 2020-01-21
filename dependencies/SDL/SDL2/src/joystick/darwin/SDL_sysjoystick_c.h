@@ -27,7 +27,8 @@
 #include <ForceFeedback/ForceFeedback.h>
 #include <ForceFeedback/ForceFeedbackConstants.h>
 
-struct recElement {
+struct recElement
+{
     IOHIDElementRef elementRef;
     IOHIDElementCookie cookie;
     uint32_t usagePage, usage;      /* HID usage */
@@ -42,7 +43,8 @@ struct recElement {
 };
 typedef struct recElement recElement;
 
-struct joystick_hwdata {
+struct joystick_hwdata
+{
     IOHIDDeviceRef deviceRef;   /* HIDManager device handle */
     io_service_t ffservice;     /* Interface for force feedback, 0 = no ff */
     FFDeviceObjectReference ffdevice;

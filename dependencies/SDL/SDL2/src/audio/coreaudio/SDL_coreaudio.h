@@ -30,10 +30,8 @@
 #endif
 
 #if MACOSX_COREAUDIO
-
 #include <CoreAudio/CoreAudio.h>
 #include <CoreServices/CoreServices.h>
-
 #else
 #import <AVFoundation/AVFoundation.h>
 #import <UIKit/UIApplication.h>
@@ -45,7 +43,8 @@
 /* Hidden "this" pointer for the audio functions */
 #define _THIS   SDL_AudioDevice *this
 
-struct SDL_PrivateAudioData {
+struct SDL_PrivateAudioData
+{
     SDL_Thread *thread;
     AudioQueueRef audioQueue;
     AudioQueueBufferRef *audioBuffer;

@@ -30,7 +30,8 @@
 
 #define NUM_BUFFERS 2           /* -- Don't lower this! */
 
-struct SDL_PrivateAudioData {
+struct SDL_PrivateAudioData
+{
     HWAVEOUT hout;
     HWAVEIN hin;
     HANDLE audio_sem;

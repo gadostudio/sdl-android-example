@@ -49,11 +49,10 @@ extern const char* (*SRC_src_strerror)(int error);
 
 /* Functions to get a list of "close" audio formats */
 extern SDL_AudioFormat SDL_FirstAudioFormat(SDL_AudioFormat format);
-
 extern SDL_AudioFormat SDL_NextAudioFormat(void);
 
 /* Function to calculate the size and silence for a SDL_AudioSpec */
-extern void SDL_CalculateAudioSpec(SDL_AudioSpec *spec);
+extern void SDL_CalculateAudioSpec(SDL_AudioSpec * spec);
 
 /* Choose the audio filter functions below */
 extern void SDL_ChooseAudioConverters(void);
@@ -73,7 +72,6 @@ extern SDL_AudioFilter SDL_Convert_F32_to_S32;
 /* You need to call SDL_PrepareResampleFilter() before using the internal resampler.
    SDL_AudioQuit() calls SDL_FreeResamplerFilter(), you should never call it yourself. */
 extern int SDL_PrepareResampleFilter(void);
-
 extern void SDL_FreeResampleFilter(void);
 
 #endif /* SDL_audio_c_h_ */

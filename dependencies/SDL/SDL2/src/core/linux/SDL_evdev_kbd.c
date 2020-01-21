@@ -822,16 +822,19 @@ SDL_EVDEV_kbd_keycode(SDL_EVDEV_keyboard_state *kbd, unsigned int keycode, int d
 #else /* !SDL_INPUT_LINUXKD */
 
 SDL_EVDEV_keyboard_state *
-SDL_EVDEV_kbd_init(void) {
+SDL_EVDEV_kbd_init(void)
+{
     return NULL;
 }
 
 void
-SDL_EVDEV_kbd_keycode(SDL_EVDEV_keyboard_state *state, unsigned int keycode, int down) {
+SDL_EVDEV_kbd_keycode(SDL_EVDEV_keyboard_state *state, unsigned int keycode, int down)
+{
 }
 
 void
-SDL_EVDEV_kbd_quit(SDL_EVDEV_keyboard_state *state) {
+SDL_EVDEV_kbd_quit(SDL_EVDEV_keyboard_state *state)
+{
 }
 
 #endif /* SDL_INPUT_LINUXKD */

@@ -31,7 +31,8 @@
 /* Hidden "this" pointer for the audio functions */
 #define _THIS   SDL_AudioDevice *this
 
-struct SDL_PrivateAudioData {
+struct SDL_PrivateAudioData
+{
     /* The audio device handle */
     struct sio_hdl *dev;
 

@@ -62,35 +62,24 @@ extern void SDL_OpenedAudioDeviceDisconnected(SDL_AudioDevice *device);
    The system preallocates enough packets for 2 callbacks' worth of data. */
 #define SDL_AUDIOBUFFERQUEUE_PACKETLEN (8 * 1024)
 
-typedef struct SDL_AudioDriverImpl {
-    void (*DetectDevices)(void);
-
-    int (*OpenDevice)(_THIS, void *handle, const char *devname, int iscapture);
-
-    void (*ThreadInit)(_THIS); /* Called by audio thread at start */
-    void (*ThreadDeinit)(_THIS); /* Called by audio thread at end */
+typedef struct SDL_AudioDriverImpl
+{
+    void (*DetectDevices) (void);
+    int (*OpenDevice) (_THIS, void *handle, const char *devname, int iscapture);
+    void (*ThreadInit) (_THIS); /* Called by audio thread at start */
+    void (*ThreadDeinit) (_THIS); /* Called by audio thread at end */
     void (*BeginLoopIteration)(_THIS);  /* Called by audio thread at top of loop */
-    void (*WaitDevice)(_THIS);
-
-    void (*PlayDevice)(_THIS);
-
-    Uint8 *(*GetDeviceBuf)(_THIS);
-
-    int (*CaptureFromDevice)(_THIS, void *buffer, int buflen);
-
-    void (*FlushCapture)(_THIS);
-
-    void
-    (*PrepareToClose)(_THIS);  /**< Called between run and draining wait for playback devices */
-    void (*CloseDevice)(_THIS);
-
-    void (*LockDevice)(_THIS);
-
-    void (*UnlockDevice)(_THIS);
-
-    void
-    (*FreeDeviceHandle)(void *handle);  /**< SDL is done with handle from SDL_AddAudioDevice() */
-    void (*Deinitialize)(void);
+    void (*WaitDevice) (_THIS);
+    void (*PlayDevice) (_THIS);
+    Uint8 *(*GetDeviceBuf) (_THIS);
+    int (*CaptureFromDevice) (_THIS, void *buffer, int buflen);
+    void (*FlushCapture) (_THIS);
+    void (*PrepareToClose) (_THIS);  /**< Called between run and draining wait for playback devices */
+    void (*CloseDevice) (_THIS);
+    void (*LockDevice) (_THIS);
+    void (*UnlockDevice) (_THIS);
+    void (*FreeDeviceHandle) (void *handle);  /**< SDL is done with handle from SDL_AddAudioDevice() */
+    void (*Deinitialize) (void);
 
     /* !!! FIXME: add pause(), so we can optimize instead of mixing silence. */
 
@@ -105,7 +94,8 @@ typedef struct SDL_AudioDriverImpl {
 } SDL_AudioDriverImpl;
 
 
-typedef struct SDL_AudioDeviceItem {
+typedef struct SDL_AudioDeviceItem
+{
     void *handle;
     char *name;
     char *original_name;
@@ -114,7 +104,8 @@ typedef struct SDL_AudioDeviceItem {
 } SDL_AudioDeviceItem;
 
 
-typedef struct SDL_AudioDriver {
+typedef struct SDL_AudioDriver
+{
     /* * * */
     /* The name of this audio driver */
     const char *name;
@@ -137,7 +128,8 @@ typedef struct SDL_AudioDriver {
 
 
 /* Define the SDL audio driver structure */
-struct SDL_AudioDevice {
+struct SDL_AudioDevice
+{
     /* * * */
     /* Data common to all devices */
     SDL_AudioDeviceID id;
@@ -181,12 +173,11 @@ struct SDL_AudioDevice {
 };
 #undef _THIS
 
-typedef struct AudioBootStrap {
+typedef struct AudioBootStrap
+{
     const char *name;
     const char *desc;
-
-    int (*init)(SDL_AudioDriverImpl *impl);
-
+    int (*init) (SDL_AudioDriverImpl * impl);
     int demand_only;  /* 1==request explicitly, or it won't be available. */
 } AudioBootStrap;
 

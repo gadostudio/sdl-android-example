@@ -25,9 +25,7 @@
 /* General quit handling code for SDL */
 
 #ifdef HAVE_SIGNAL_H
-
 #include <signal.h>
-
 #endif
 
 #include "SDL_events.h"
@@ -50,7 +48,8 @@ static SDL_bool send_foregrounding_pending = SDL_FALSE;
 #endif
 
 static void
-SDL_HandleSIG(int sig) {
+SDL_HandleSIG(int sig)
+{
     /* Reset the signal handler */
     signal(sig, SDL_HandleSIG);
 
@@ -60,21 +59,22 @@ SDL_HandleSIG(int sig) {
         send_quit_pending = SDL_TRUE;
     }
 
-#ifdef SDL_BACKGROUNDING_SIGNAL
+    #ifdef SDL_BACKGROUNDING_SIGNAL
     else if (sig == SDL_BACKGROUNDING_SIGNAL) {
         send_backgrounding_pending = SDL_TRUE;
     }
-#endif
+    #endif
 
-#ifdef SDL_FOREGROUNDING_SIGNAL
+    #ifdef SDL_FOREGROUNDING_SIGNAL
     else if (sig == SDL_FOREGROUNDING_SIGNAL) {
         send_foregrounding_pending = SDL_TRUE;
     }
-#endif
+    #endif
 }
 
 static void
-SDL_EventSignal_Init(const int sig) {
+SDL_EventSignal_Init(const int sig)
+{
 #ifdef HAVE_SIGACTION
     struct sigaction action;
 
@@ -82,7 +82,7 @@ SDL_EventSignal_Init(const int sig) {
 #ifdef HAVE_SA_SIGACTION
     if ( action.sa_handler == SIG_DFL && (void (*)(int))action.sa_sigaction == SIG_DFL ) {
 #else
-    if (action.sa_handler == SIG_DFL) {
+    if ( action.sa_handler == SIG_DFL ) {
 #endif
         action.sa_handler = SDL_HandleSIG;
         sigaction(sig, &action, NULL);
@@ -96,11 +96,12 @@ SDL_EventSignal_Init(const int sig) {
 }
 
 static void
-SDL_EventSignal_Quit(const int sig) {
+SDL_EventSignal_Quit(const int sig)
+{
 #ifdef HAVE_SIGACTION
     struct sigaction action;
     sigaction(sig, NULL, &action);
-    if (action.sa_handler == SDL_HandleSIG) {
+    if ( action.sa_handler == SDL_HandleSIG ) {
         action.sa_handler = SIG_DFL;
         sigaction(sig, &action, NULL);
     }
@@ -114,42 +115,44 @@ SDL_EventSignal_Quit(const int sig) {
 
 /* Public functions */
 static int
-SDL_QuitInit_Internal(void) {
+SDL_QuitInit_Internal(void)
+{
     /* Both SIGINT and SIGTERM are translated into quit interrupts */
     /* and SDL can be built to simulate iOS/Android semantics with arbitrary signals. */
     SDL_EventSignal_Init(SIGINT);
     SDL_EventSignal_Init(SIGTERM);
 
-#ifdef SDL_BACKGROUNDING_SIGNAL
+    #ifdef SDL_BACKGROUNDING_SIGNAL
     SDL_EventSignal_Init(SDL_BACKGROUNDING_SIGNAL);
-#endif
+    #endif
 
-#ifdef SDL_FOREGROUNDING_SIGNAL
+    #ifdef SDL_FOREGROUNDING_SIGNAL
     SDL_EventSignal_Init(SDL_FOREGROUNDING_SIGNAL);
-#endif
+    #endif
 
     /* That's it! */
     return 0;
 }
 
 static void
-SDL_QuitQuit_Internal(void) {
+SDL_QuitQuit_Internal(void)
+{
     SDL_EventSignal_Quit(SIGINT);
     SDL_EventSignal_Quit(SIGTERM);
 
-#ifdef SDL_BACKGROUNDING_SIGNAL
+    #ifdef SDL_BACKGROUNDING_SIGNAL
     SDL_EventSignal_Quit(SDL_BACKGROUNDING_SIGNAL);
-#endif
+    #endif
 
-#ifdef SDL_FOREGROUNDING_SIGNAL
+    #ifdef SDL_FOREGROUNDING_SIGNAL
     SDL_EventSignal_Quit(SDL_FOREGROUNDING_SIGNAL);
-#endif
+    #endif
 }
-
 #endif
 
 int
-SDL_QuitInit(void) {
+SDL_QuitInit(void)
+{
 #ifdef HAVE_SIGNAL_SUPPORT
     if (!SDL_GetHintBoolean(SDL_HINT_NO_SIGNAL_HANDLERS, SDL_FALSE)) {
         return SDL_QuitInit_Internal();
@@ -159,7 +162,8 @@ SDL_QuitInit(void) {
 }
 
 void
-SDL_QuitQuit(void) {
+SDL_QuitQuit(void)
+{
 #ifdef HAVE_SIGNAL_SUPPORT
     if (!disable_signals) {
         SDL_QuitQuit_Internal();
@@ -168,32 +172,34 @@ SDL_QuitQuit(void) {
 }
 
 void
-SDL_SendPendingSignalEvents(void) {
+SDL_SendPendingSignalEvents(void)
+{
 #ifdef HAVE_SIGNAL_SUPPORT
     if (send_quit_pending) {
         SDL_SendQuit();
         SDL_assert(!send_quit_pending);
     }
 
-#ifdef SDL_BACKGROUNDING_SIGNAL
+    #ifdef SDL_BACKGROUNDING_SIGNAL
     if (send_backgrounding_pending) {
         send_backgrounding_pending = SDL_FALSE;
         SDL_OnApplicationWillResignActive();
     }
-#endif
+    #endif
 
-#ifdef SDL_FOREGROUNDING_SIGNAL
+    #ifdef SDL_FOREGROUNDING_SIGNAL
     if (send_foregrounding_pending) {
         send_foregrounding_pending = SDL_FALSE;
         SDL_OnApplicationDidBecomeActive();
     }
-#endif
+    #endif
 #endif
 }
 
 /* This function returns 1 if it's okay to close the application window */
 int
-SDL_SendQuit(void) {
+SDL_SendQuit(void)
+{
 #ifdef HAVE_SIGNAL_SUPPORT
     send_quit_pending = SDL_FALSE;
 #endif

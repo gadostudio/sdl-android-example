@@ -24,20 +24,14 @@
 
 #include "../../SDL_internal.h"
 
-typedef SDL_bool (*SteamControllerConnectedCallback_t)(const char *name, SDL_JoystickGUID guid,
-                                                       int *device_instance);
-
+typedef SDL_bool (*SteamControllerConnectedCallback_t)(const char *name, SDL_JoystickGUID guid, int *device_instance);
 typedef void (*SteamControllerDisconnectedCallback_t)(int device_instance);
 
 void SDL_InitSteamControllers(SteamControllerConnectedCallback_t connectedCallback,
                               SteamControllerDisconnectedCallback_t disconnectedCallback);
-
 void SDL_GetSteamControllerInputs(int *nbuttons, int *naxes, int *nhats);
-
 void SDL_UpdateSteamControllers(void);
-
 void SDL_UpdateSteamController(SDL_Joystick *joystick);
-
 void SDL_QuitSteamControllers(void);
 
 #endif /* SDL_steamcontroller_h_ */

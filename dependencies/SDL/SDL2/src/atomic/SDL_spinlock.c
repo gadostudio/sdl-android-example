@@ -48,7 +48,8 @@ extern _inline int _SDL_xchg_watcom(volatile int *a, int v);
 
 /* This function is where all the magic happens... */
 SDL_bool
-SDL_AtomicTryLock(SDL_SpinLock *lock) {
+SDL_AtomicTryLock(SDL_SpinLock *lock)
+{
 #if SDL_ATOMIC_DISABLED
     /* Terrible terrible damage */
     static SDL_mutex *_spinlock_mutex;
@@ -121,19 +122,20 @@ SDL_AtomicTryLock(SDL_SpinLock *lock) {
 
 /* "REP NOP" is PAUSE, coded for tools that don't know it by that name. */
 #if (defined(__GNUC__) || defined(__clang__)) && (defined(__i386__) || defined(__x86_64__))
-#define PAUSE_INSTRUCTION() __asm__ __volatile__("pause\n")  /* Some assemblers can't do REP NOP, so go with PAUSE. */
+    #define PAUSE_INSTRUCTION() __asm__ __volatile__("pause\n")  /* Some assemblers can't do REP NOP, so go with PAUSE. */
 #elif defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_X64))
-#define PAUSE_INSTRUCTION() _mm_pause()  /* this is actually "rep nop" and not a SIMD instruction. No inline asm in MSVC x86-64! */
+    #define PAUSE_INSTRUCTION() _mm_pause()  /* this is actually "rep nop" and not a SIMD instruction. No inline asm in MSVC x86-64! */
 #elif defined(__WATCOMC__) && defined(__386__)
-/* watcom assembler rejects PAUSE if CPU < i686, and it refuses REP NOP as an invalid combination. Hardcode the bytes.  */
-extern _inline void PAUSE_INSTRUCTION(void);
-#pragma aux PAUSE_INSTRUCTION = "db 0f3h,90h"
+    /* watcom assembler rejects PAUSE if CPU < i686, and it refuses REP NOP as an invalid combination. Hardcode the bytes.  */
+    extern _inline void PAUSE_INSTRUCTION(void);
+    #pragma aux PAUSE_INSTRUCTION = "db 0f3h,90h"
 #else
-#define PAUSE_INSTRUCTION()
+    #define PAUSE_INSTRUCTION()
 #endif
 
 void
-SDL_AtomicLock(SDL_SpinLock *lock) {
+SDL_AtomicLock(SDL_SpinLock *lock)
+{
     int iterations = 0;
     /* FIXME: Should we have an eventual timeout? */
     while (!SDL_AtomicTryLock(lock)) {
@@ -148,7 +150,8 @@ SDL_AtomicLock(SDL_SpinLock *lock) {
 }
 
 void
-SDL_AtomicUnlock(SDL_SpinLock *lock) {
+SDL_AtomicUnlock(SDL_SpinLock *lock)
+{
 #if defined(_MSC_VER)
     _ReadWriteBarrier();
     *lock = 0;

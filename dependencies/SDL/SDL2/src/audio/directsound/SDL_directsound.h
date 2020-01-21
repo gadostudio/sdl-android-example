@@ -31,7 +31,8 @@
 #define _THIS   SDL_AudioDevice *this
 
 /* The DirectSound objects */
-struct SDL_PrivateAudioData {
+struct SDL_PrivateAudioData
+{
     LPDIRECTSOUND sound;
     LPDIRECTSOUNDBUFFER mixbuf;
     LPDIRECTSOUNDCAPTURE capture;

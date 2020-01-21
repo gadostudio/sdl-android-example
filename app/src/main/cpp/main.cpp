@@ -4,7 +4,7 @@ and may not be redistributed without written permission.*/
 //Using SDL, standard IO, and, strings
 #include <SDL.h>
 //#include <cstdio>
-//#include <string>
+#include <string>
 //#include <cstring>
 
 //Texture wrapper class
@@ -17,7 +17,7 @@ public:
     ~LTexture();
 
     //Loads image at specified path
-    bool loadFromFile(const char *path);
+    bool loadFromFile(std::string path);
 
 #if defined(_SDL_TTF_H) || defined(SDL_TTF_H)
     //Creates image from font string
@@ -110,7 +110,7 @@ LTexture::~LTexture() {
     free();
 }
 
-bool LTexture::loadFromFile(const char *path) {
+bool LTexture::loadFromFile(std::string path) {
     //Get rid of preexisting texture
     free();
 
@@ -118,9 +118,9 @@ bool LTexture::loadFromFile(const char *path) {
     SDL_Texture *newTexture = NULL;
 
     //Load image at specified path
-    SDL_Surface *loadedSurface = SDL_LoadBMP(path);
+    SDL_Surface *loadedSurface = SDL_LoadBMP(path.c_str());
     if (loadedSurface == NULL) {
-        SDL_Log("Unable to load image %s! SDL Error: %s\n", path, SDL_GetError());
+        SDL_Log("Unable to load image %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
     } else {
         //Convert surface to display format
         SDL_Surface *formattedSurface = SDL_ConvertSurfaceFormat(loadedSurface,

@@ -27,7 +27,8 @@
 
 #define MAX_INPUTS  256     /* each joystick can have up to 256 inputs */
 
-typedef struct JoyStick_DeviceData {
+typedef struct JoyStick_DeviceData
+{
     SDL_JoystickGUID guid;
     char *joystickname;
     Uint8 send_add_event;
@@ -42,13 +43,15 @@ typedef struct JoyStick_DeviceData {
 
 extern JoyStick_DeviceData *SYS_Joystick;    /* array to hold joystick ID values */
 
-typedef enum Type {
+typedef enum Type
+{
     BUTTON,
     AXIS,
     HAT
 } Type;
 
-typedef struct input_t {
+typedef struct input_t
+{
     /* DirectInput offset for this input type: */
     DWORD ofs;
 
@@ -60,7 +63,8 @@ typedef struct input_t {
 } input_t;
 
 /* The private structure used to keep track of a joystick */
-struct joystick_hwdata {
+struct joystick_hwdata
+{
     SDL_JoystickGUID guid;
     Uint32 rumble_expiration;
 

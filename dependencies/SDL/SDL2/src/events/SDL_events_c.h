@@ -40,27 +40,21 @@
 
 /* Start and stop the event processing loop */
 extern int SDL_StartEventLoop(void);
-
 extern void SDL_StopEventLoop(void);
-
 extern void SDL_QuitInterrupt(void);
 
 extern int SDL_SendAppEvent(SDL_EventType eventType);
-
-extern int SDL_SendSysWMEvent(SDL_SysWMmsg *message);
-
+extern int SDL_SendSysWMEvent(SDL_SysWMmsg * message);
 extern int SDL_SendKeymapChangedEvent(void);
 
 extern int SDL_SendQuit(void);
 
 extern int SDL_EventsInit(void);
-
 extern void SDL_EventsQuit(void);
 
 extern void SDL_SendPendingSignalEvents(void);
 
 extern int SDL_QuitInit(void);
-
 extern void SDL_QuitQuit(void);
 
 #endif /* SDL_events_c_h_ */

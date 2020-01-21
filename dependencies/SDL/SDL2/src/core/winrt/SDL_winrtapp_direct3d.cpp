@@ -24,13 +24,11 @@
 #include <functional>
 #include <string>
 #include <sstream>
-
 using namespace std;
 
 
 /* Windows includes */
 #include "ppltasks.h"
-
 using namespace concurrency;
 using namespace Windows::ApplicationModel;
 using namespace Windows::ApplicationModel::Core;
@@ -93,41 +91,39 @@ extern "C" void D3D11_Trim(SDL_Renderer *);
 // non-global, such as something created inside
 // SDL_InitSubSystem(SDL_INIT_VIDEO), or something inside
 // SDL_CreateWindow().
-SDL_WinRTApp ^SDL_WinRTGlobalApp = nullptr;
+SDL_WinRTApp ^ SDL_WinRTGlobalApp = nullptr;
 
-ref class SDLApplicationSource sealed
-: Windows::ApplicationModel::Core::IFrameworkViewSource
+ref class SDLApplicationSource sealed : Windows::ApplicationModel::Core::IFrameworkViewSource
 {
 public:
-
-virtual Windows::ApplicationModel::Core::IFrameworkView ^ CreateView();
-
+    virtual Windows::ApplicationModel::Core::IFrameworkView^ CreateView();
 };
 
-IFrameworkView ^ SDLApplicationSource::CreateView() {
+IFrameworkView^ SDLApplicationSource::CreateView()
+{
     // TODO, WinRT: see if this function (CreateView) can ever get called
     // more than once.  For now, just prevent it from ever assigning
     // SDL_WinRTGlobalApp more than once.
     SDL_assert(!SDL_WinRTGlobalApp);
-    SDL_WinRTApp ^app = ref
-    new SDL_WinRTApp();
-    if (!SDL_WinRTGlobalApp) {
+    SDL_WinRTApp ^ app = ref new SDL_WinRTApp();
+    if (!SDL_WinRTGlobalApp)
+    {
         SDL_WinRTGlobalApp = app;
     }
     return app;
 }
 
-int SDL_WinRTInitNonXAMLApp(int (*mainFunction)(int, char **)) {
+int SDL_WinRTInitNonXAMLApp(int (*mainFunction)(int, char **))
+{
     WINRT_SDLAppEntryPoint = mainFunction;
-    auto direct3DApplicationSource = ref
-    new SDLApplicationSource();
+    auto direct3DApplicationSource = ref new SDLApplicationSource();
     CoreApplication::Run(direct3DApplicationSource);
     return 0;
 }
 
 static void SDLCALL
-WINRT_SetDisplayOrientationsPreference(void *userdata, const char *name, const char *oldValue,
-                                       const char *newValue) {
+WINRT_SetDisplayOrientationsPreference(void *userdata, const char *name, const char *oldValue, const char *newValue)
+{
     SDL_assert(SDL_strcmp(name, SDL_HINT_ORIENTATIONS) == 0);
 
     /* HACK: prevent SDL from altering an app's .appxmanifest-set orientation
@@ -163,7 +159,7 @@ WINRT_SetDisplayOrientationsPreference(void *userdata, const char *name, const c
     // If no valid orientation flags were specified, use a reasonable set of defaults:
     if (!orientationFlags) {
         // TODO, WinRT: consider seeing if an app's default orientation flags can be found out via some API call(s).
-        orientationFlags = (unsigned int) (\
+        orientationFlags = (unsigned int) ( \
             DisplayOrientations::Landscape |
             DisplayOrientations::LandscapeFlipped |
             DisplayOrientations::Portrait |
@@ -190,11 +186,11 @@ WINRT_SetDisplayOrientationsPreference(void *userdata, const char *name, const c
 static void
 WINRT_ProcessWindowSizeChange() // TODO: Pass an SDL_Window-identifying thing into WINRT_ProcessWindowSizeChange()
 {
-    CoreWindow ^coreWindow = CoreWindow::GetForCurrentThread();
+    CoreWindow ^ coreWindow = CoreWindow::GetForCurrentThread();
     if (coreWindow) {
         if (WINRT_GlobalSDLWindow) {
-            SDL_Window *window = WINRT_GlobalSDLWindow;
-            SDL_WindowData *data = (SDL_WindowData *) window->driverdata;
+            SDL_Window * window = WINRT_GlobalSDLWindow;
+            SDL_WindowData * data = (SDL_WindowData *) window->driverdata;
 
             int x = WINRT_DIPS_TO_PHYSICAL_PIXELS(data->coreWindow->Bounds.Left);
             int y = WINRT_DIPS_TO_PHYSICAL_PIXELS(data->coreWindow->Bounds.Top);
@@ -211,16 +207,14 @@ WINRT_ProcessWindowSizeChange() // TODO: Pass an SDL_Window-identifying thing in
                regards to window size.  This fixes a rendering bug that occurs
                when a WinPhone 8.0 app is rotated to either 90 or 270 degrees.
             */
-            const DisplayOrientations currentOrientation = WINRT_DISPLAY_PROPERTY(
-                    CurrentOrientation);
+            const DisplayOrientations currentOrientation = WINRT_DISPLAY_PROPERTY(CurrentOrientation);
             switch (currentOrientation) {
                 case DisplayOrientations::Landscape:
                 case DisplayOrientations::LandscapeFlipped: {
                     int tmp = w;
                     w = h;
                     h = tmp;
-                }
-                    break;
+                } break;
             }
 #endif
 
@@ -242,27 +236,24 @@ WINRT_ProcessWindowSizeChange() // TODO: Pass an SDL_Window-identifying thing in
 }
 
 SDL_WinRTApp::SDL_WinRTApp() :
-        m_windowClosed(false),
-        m_windowVisible(true) {
+    m_windowClosed(false),
+    m_windowVisible(true)
+{
 }
 
-void SDL_WinRTApp::Initialize(CoreApplicationView^applicationView) {
+void SDL_WinRTApp::Initialize(CoreApplicationView^ applicationView)
+{
     applicationView->Activated +=
-            ref
-    new TypedEventHandler<CoreApplicationView ^ , IActivatedEventArgs ^ >(this,
-                                                                          &SDL_WinRTApp::OnAppActivated);
+        ref new TypedEventHandler<CoreApplicationView^, IActivatedEventArgs^>(this, &SDL_WinRTApp::OnAppActivated);
 
     CoreApplication::Suspending +=
-            ref
-    new EventHandler<SuspendingEventArgs ^ >(this, &SDL_WinRTApp::OnSuspending);
+        ref new EventHandler<SuspendingEventArgs^>(this, &SDL_WinRTApp::OnSuspending);
 
     CoreApplication::Resuming +=
-            ref
-    new EventHandler<Platform::Object ^ >(this, &SDL_WinRTApp::OnResuming);
+        ref new EventHandler<Platform::Object^>(this, &SDL_WinRTApp::OnResuming);
 
     CoreApplication::Exiting +=
-            ref
-    new EventHandler<Platform::Object ^ >(this, &SDL_WinRTApp::OnExiting);
+        ref new EventHandler<Platform::Object^>(this, &SDL_WinRTApp::OnExiting);
 
 #if NTDDI_VERSION >= NTDDI_WIN10
     /* HACK ALERT!  Xbox One doesn't seem to detect gamepads unless something
@@ -271,21 +262,19 @@ void SDL_WinRTApp::Initialize(CoreApplicationView^applicationView) {
        sure that gamepad detection works later on, if requested.
     */
     Windows::Gaming::Input::Gamepad::GamepadAdded +=
-            ref
-    new Windows::Foundation::EventHandler<Windows::Gaming::Input::Gamepad ^ >(
+        ref new Windows::Foundation::EventHandler<Windows::Gaming::Input::Gamepad^>(
             this, &SDL_WinRTApp::OnGamepadAdded
-    );
+        );
 #endif
 }
 
 #if NTDDI_VERSION > NTDDI_WIN8
 void SDL_WinRTApp::OnOrientationChanged(DisplayInformation^ sender, Object^ args)
 #else
-
-void SDL_WinRTApp::OnOrientationChanged(Object^sender)
+void SDL_WinRTApp::OnOrientationChanged(Object^ sender)
 #endif
 {
-#if LOG_ORIENTATION_EVENTS == 1
+#if LOG_ORIENTATION_EVENTS==1
     {
         CoreWindow^ window = CoreWindow::GetForCurrentThread();
         if (window) {
@@ -320,9 +309,9 @@ void SDL_WinRTApp::OnOrientationChanged(Object^sender)
     // I'm not currently sure why this is, but it seems to work fine. -- David L.
     //
     // TODO, WinRT: do more extensive research into why orientation changes on Win 8.x don't need D3D changes, or if they might, in some cases
-    SDL_Window *window = WINRT_GlobalSDLWindow;
+    SDL_Window * window = WINRT_GlobalSDLWindow;
     if (window) {
-        SDL_WindowData *data = (SDL_WindowData *) window->driverdata;
+        SDL_WindowData * data = (SDL_WindowData *)window->driverdata;
         int w = WINRT_DIPS_TO_PHYSICAL_PIXELS(data->coreWindow->Bounds.Width);
         int h = WINRT_DIPS_TO_PHYSICAL_PIXELS(data->coreWindow->Bounds.Height);
         SDL_SendWindowEvent(WINRT_GlobalSDLWindow, SDL_WINDOWEVENT_SIZE_CHANGED, w, h);
@@ -331,8 +320,9 @@ void SDL_WinRTApp::OnOrientationChanged(Object^sender)
 
 }
 
-void SDL_WinRTApp::SetWindow(CoreWindow^window) {
-#if LOG_WINDOW_EVENTS == 1
+void SDL_WinRTApp::SetWindow(CoreWindow^ window)
+{
+#if LOG_WINDOW_EVENTS==1
     SDL_Log("%s, current orientation=%d, native orientation=%d, auto rot. pref=%d, window bounds={%f, %f, %f,%f}\n",
         __FUNCTION__,
         WINRT_DISPLAY_PROPERTY(CurrentOrientation),
@@ -344,57 +334,39 @@ void SDL_WinRTApp::SetWindow(CoreWindow^window) {
         window->Bounds.Height);
 #endif
 
-    window->SizeChanged +=
-            ref
-    new TypedEventHandler<CoreWindow ^ , WindowSizeChangedEventArgs ^ >(this,
-                                                                        &SDL_WinRTApp::OnWindowSizeChanged);
+    window->SizeChanged += 
+        ref new TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(this, &SDL_WinRTApp::OnWindowSizeChanged);
 
     window->VisibilityChanged +=
-            ref
-    new TypedEventHandler<CoreWindow ^ , VisibilityChangedEventArgs ^ >(this,
-                                                                        &SDL_WinRTApp::OnVisibilityChanged);
+        ref new TypedEventHandler<CoreWindow^, VisibilityChangedEventArgs^>(this, &SDL_WinRTApp::OnVisibilityChanged);
 
     window->Activated +=
-            ref
-    new TypedEventHandler<CoreWindow ^ , WindowActivatedEventArgs ^ >(this,
-                                                                      &SDL_WinRTApp::OnWindowActivated);
+        ref new TypedEventHandler<CoreWindow^, WindowActivatedEventArgs^>(this, &SDL_WinRTApp::OnWindowActivated);
 
-    window->Closed +=
-            ref
-    new TypedEventHandler<CoreWindow ^ , CoreWindowEventArgs ^ >(this,
-                                                                 &SDL_WinRTApp::OnWindowClosed);
+    window->Closed += 
+        ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &SDL_WinRTApp::OnWindowClosed);
 
 #if WINAPI_FAMILY != WINAPI_FAMILY_PHONE_APP
     window->PointerCursor = ref new CoreCursor(CoreCursorType::Arrow, 0);
 #endif
 
     window->PointerPressed +=
-            ref
-    new TypedEventHandler<CoreWindow ^ , PointerEventArgs ^ >(this,
-                                                              &SDL_WinRTApp::OnPointerPressed);
+        ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &SDL_WinRTApp::OnPointerPressed);
 
     window->PointerMoved +=
-            ref
-    new TypedEventHandler<CoreWindow ^ , PointerEventArgs ^ >(this, &SDL_WinRTApp::OnPointerMoved);
+        ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &SDL_WinRTApp::OnPointerMoved);
 
     window->PointerReleased +=
-            ref
-    new TypedEventHandler<CoreWindow ^ , PointerEventArgs ^ >(this,
-                                                              &SDL_WinRTApp::OnPointerReleased);
+        ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &SDL_WinRTApp::OnPointerReleased);
 
     window->PointerEntered +=
-            ref
-    new TypedEventHandler<CoreWindow ^ , PointerEventArgs ^ >(this,
-                                                              &SDL_WinRTApp::OnPointerEntered);
+        ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &SDL_WinRTApp::OnPointerEntered);
 
     window->PointerExited +=
-            ref
-    new TypedEventHandler<CoreWindow ^ , PointerEventArgs ^ >(this, &SDL_WinRTApp::OnPointerExited);
+        ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &SDL_WinRTApp::OnPointerExited);
 
     window->PointerWheelChanged +=
-            ref
-    new TypedEventHandler<CoreWindow ^ , PointerEventArgs ^ >(this,
-                                                              &SDL_WinRTApp::OnPointerWheelChanged);
+        ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &SDL_WinRTApp::OnPointerWheelChanged);
 
 #if WINAPI_FAMILY != WINAPI_FAMILY_PHONE_APP
     // Retrieves relative-only mouse movements:
@@ -403,22 +375,17 @@ void SDL_WinRTApp::SetWindow(CoreWindow^window) {
 #endif
 
     window->KeyDown +=
-            ref
-    new TypedEventHandler<CoreWindow ^ , KeyEventArgs ^ >(this, &SDL_WinRTApp::OnKeyDown);
+        ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &SDL_WinRTApp::OnKeyDown);
 
     window->KeyUp +=
-            ref
-    new TypedEventHandler<CoreWindow ^ , KeyEventArgs ^ >(this, &SDL_WinRTApp::OnKeyUp);
+        ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &SDL_WinRTApp::OnKeyUp);
 
     window->CharacterReceived +=
-            ref
-    new TypedEventHandler<CoreWindow ^ , CharacterReceivedEventArgs ^ >(this,
-                                                                        &SDL_WinRTApp::OnCharacterReceived);
+        ref new TypedEventHandler<CoreWindow^, CharacterReceivedEventArgs^>(this, &SDL_WinRTApp::OnCharacterReceived);
 
 #if NTDDI_VERSION >= NTDDI_WIN10
     Windows::UI::Core::SystemNavigationManager::GetForCurrentView()->BackRequested +=
-            ref
-    new EventHandler<BackRequestedEventArgs ^ >(this, &SDL_WinRTApp::OnBackButtonPressed);
+        ref new EventHandler<BackRequestedEventArgs^>(this, &SDL_WinRTApp::OnBackButtonPressed);
 #elif WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP
     HardwareButtons::BackPressed +=
         ref new EventHandler<BackPressedEventArgs^>(this, &SDL_WinRTApp::OnBackButtonPressed);
@@ -429,8 +396,7 @@ void SDL_WinRTApp::SetWindow(CoreWindow^window) {
         ref new TypedEventHandler<Windows::Graphics::Display::DisplayInformation^, Object^>(this, &SDL_WinRTApp::OnOrientationChanged);
 #else
     DisplayProperties::OrientationChanged +=
-            ref
-    new DisplayPropertiesEventHandler(this, &SDL_WinRTApp::OnOrientationChanged);
+        ref new DisplayPropertiesEventHandler(this, &SDL_WinRTApp::OnOrientationChanged);
 #endif
 
     // Register the hint, SDL_HINT_ORIENTATIONS, with SDL.
@@ -448,12 +414,15 @@ void SDL_WinRTApp::SetWindow(CoreWindow^window) {
 #endif
 }
 
-void SDL_WinRTApp::Load(Platform::String^entryPoint) {
+void SDL_WinRTApp::Load(Platform::String^ entryPoint)
+{
 }
 
-void SDL_WinRTApp::Run() {
+void SDL_WinRTApp::Run()
+{
     SDL_SetMainReady();
-    if (WINRT_SDLAppEntryPoint) {
+    if (WINRT_SDLAppEntryPoint)
+    {
         // TODO, WinRT: pass the C-style main() a reasonably realistic
         // representation of command line arguments.
         int argc = 0;
@@ -462,10 +431,10 @@ void SDL_WinRTApp::Run() {
     }
 }
 
-static bool IsSDLWindowEventPending(SDL_WindowEventID windowEventID) {
+static bool IsSDLWindowEventPending(SDL_WindowEventID windowEventID)
+{
     SDL_Event events[128];
-    const int count = SDL_PeepEvents(events, sizeof(events) / sizeof(SDL_Event), SDL_PEEKEVENT,
-                                     SDL_WINDOWEVENT, SDL_WINDOWEVENT);
+    const int count = SDL_PeepEvents(events, sizeof(events)/sizeof(SDL_Event), SDL_PEEKEVENT, SDL_WINDOWEVENT, SDL_WINDOWEVENT);
     for (int i = 0; i < count; ++i) {
         if (events[i].window.event == windowEventID) {
             return true;
@@ -474,12 +443,13 @@ static bool IsSDLWindowEventPending(SDL_WindowEventID windowEventID) {
     return false;
 }
 
-bool SDL_WinRTApp::ShouldWaitForAppResumeEvents() {
+bool SDL_WinRTApp::ShouldWaitForAppResumeEvents()
+{
     /* Don't wait if the app is visible: */
     if (m_windowVisible) {
         return false;
     }
-
+    
     /* Don't wait until the window-hide events finish processing.
      * Do note that if an app-suspend event is sent (as indicated
      * by SDL_APP_WILLENTERBACKGROUND and SDL_APP_DIDENTERBACKGROUND
@@ -500,15 +470,15 @@ bool SDL_WinRTApp::ShouldWaitForAppResumeEvents() {
     return true;
 }
 
-void SDL_WinRTApp::PumpEvents() {
+void SDL_WinRTApp::PumpEvents()
+{
     if (!m_windowClosed) {
         if (!ShouldWaitForAppResumeEvents()) {
             /* This is the normal way in which events should be pumped.
              * 'ProcessAllIfPresent' will make ProcessEvents() process anywhere
              * from zero to N events, and will then return.
              */
-            CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(
-                    CoreProcessEventsOption::ProcessAllIfPresent);
+            CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
         } else {
             /* This style of event-pumping, with 'ProcessOneAndAllPending',
              * will cause anywhere from one to N events to be processed.  If
@@ -517,13 +487,13 @@ void SDL_WinRTApp::PumpEvents() {
              * available, and will not return (to the caller) until this
              * happens!  This should only occur when the app is hidden.
              */
-            CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(
-                    CoreProcessEventsOption::ProcessOneAndAllPending);
+            CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessOneAndAllPending);
         }
     }
 }
 
-void SDL_WinRTApp::Uninitialize() {
+void SDL_WinRTApp::Uninitialize()
+{
 }
 
 #if (WINAPI_FAMILY == WINAPI_FAMILY_APP) && (NTDDI_VERSION < NTDDI_WIN10)
@@ -570,8 +540,9 @@ void SDL_WinRTApp::OnSettingsPaneCommandsRequested(
 }
 #endif // if (WINAPI_FAMILY == WINAPI_FAMILY_APP) && (NTDDI_VERSION < NTDDI_WIN10)
 
-void SDL_WinRTApp::OnWindowSizeChanged(CoreWindow^sender, WindowSizeChangedEventArgs^args) {
-#if LOG_WINDOW_EVENTS == 1
+void SDL_WinRTApp::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEventArgs^ args)
+{
+#if LOG_WINDOW_EVENTS==1
     SDL_Log("%s, size={%f,%f}, bounds={%f,%f,%f,%f}, current orientation=%d, native orientation=%d, auto rot. pref=%d, WINRT_GlobalSDLWindow?=%s\n",
         __FUNCTION__,
         args->Size.Width, args->Size.Height,
@@ -585,8 +556,9 @@ void SDL_WinRTApp::OnWindowSizeChanged(CoreWindow^sender, WindowSizeChangedEvent
     WINRT_ProcessWindowSizeChange();
 }
 
-void SDL_WinRTApp::OnVisibilityChanged(CoreWindow^sender, VisibilityChangedEventArgs^args) {
-#if LOG_WINDOW_EVENTS == 1
+void SDL_WinRTApp::OnVisibilityChanged(CoreWindow^ sender, VisibilityChangedEventArgs^ args)
+{
+#if LOG_WINDOW_EVENTS==1
     SDL_Log("%s, visible?=%s, bounds={%f,%f,%f,%f}, WINRT_GlobalSDLWindow?=%s\n",
         __FUNCTION__,
         (args->Visible ? "yes" : "no"),
@@ -623,8 +595,9 @@ void SDL_WinRTApp::OnVisibilityChanged(CoreWindow^sender, VisibilityChangedEvent
     }
 }
 
-void SDL_WinRTApp::OnWindowActivated(CoreWindow^sender, WindowActivatedEventArgs^args) {
-#if LOG_WINDOW_EVENTS == 1
+void SDL_WinRTApp::OnWindowActivated(CoreWindow^ sender, WindowActivatedEventArgs^ args)
+{
+#if LOG_WINDOW_EVENTS==1
     SDL_Log("%s, WINRT_GlobalSDLWindow?=%s\n\n",
         __FUNCTION__,
         (WINRT_GlobalSDLWindow ? "yes" : "no"));
@@ -637,14 +610,14 @@ void SDL_WinRTApp::OnWindowActivated(CoreWindow^sender, WindowActivatedEventArgs
     */
     sender->CustomProperties->Insert("SDLHelperWindowActivationState", args->WindowActivationState);
 
-    SDL_Window *window = WINRT_GlobalSDLWindow;
+    SDL_Window * window = WINRT_GlobalSDLWindow;
     if (window) {
         if (args->WindowActivationState != CoreWindowActivationState::Deactivated) {
             SDL_SendWindowEvent(window, SDL_WINDOWEVENT_SHOWN, 0, 0);
             if (SDL_GetKeyboardFocus() != window) {
                 SDL_SetKeyboardFocus(window);
             }
-
+        
             /* Send a mouse-motion event as appropriate.
                This doesn't work when called from OnPointerEntered, at least
                not in WinRT CoreWindow apps (as OnPointerEntered doesn't
@@ -655,9 +628,8 @@ void SDL_WinRTApp::OnWindowActivated(CoreWindow^sender, WindowActivatedEventArgs
                property isn't available.
              */
 #if (WINAPI_FAMILY != WINAPI_FAMILY_PHONE_APP) || (NTDDI_VERSION >= NTDDI_WINBLUE)
-            Point cursorPos = WINRT_TransformCursorPosition(window, sender->PointerPosition,
-                                                            TransformToSDLWindowSize);
-            SDL_SendMouseMotion(window, 0, 0, (int) cursorPos.X, (int) cursorPos.Y);
+            Point cursorPos = WINRT_TransformCursorPosition(window, sender->PointerPosition, TransformToSDLWindowSize);
+            SDL_SendMouseMotion(window, 0, 0, (int)cursorPos.X, (int)cursorPos.Y);
 #endif
 
             /* TODO, WinRT: see if the Win32 bugfix from https://hg.libsdl.org/SDL/rev/d278747da408 needs to be applied (on window activation) */
@@ -685,18 +657,21 @@ void SDL_WinRTApp::OnWindowActivated(CoreWindow^sender, WindowActivatedEventArgs
     }
 }
 
-void SDL_WinRTApp::OnWindowClosed(CoreWindow^sender, CoreWindowEventArgs^args) {
-#if LOG_WINDOW_EVENTS == 1
+void SDL_WinRTApp::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args)
+{
+#if LOG_WINDOW_EVENTS==1
     SDL_Log("%s\n", __FUNCTION__);
 #endif
     m_windowClosed = true;
 }
 
-void SDL_WinRTApp::OnAppActivated(CoreApplicationView^applicationView, IActivatedEventArgs^args) {
+void SDL_WinRTApp::OnAppActivated(CoreApplicationView^ applicationView, IActivatedEventArgs^ args)
+{
     CoreWindow::GetForCurrentThread()->Activate();
 }
 
-void SDL_WinRTApp::OnSuspending(Platform::Object^sender, SuspendingEventArgs^args) {
+void SDL_WinRTApp::OnSuspending(Platform::Object^ sender, SuspendingEventArgs^ args)
+{
     // Save app state asynchronously after requesting a deferral. Holding a deferral
     // indicates that the application is busy performing suspending operations. Be
     // aware that a deferral may not be held indefinitely. After about five seconds,
@@ -711,8 +686,9 @@ void SDL_WinRTApp::OnSuspending(Platform::Object^sender, SuspendingEventArgs^arg
     // this could be important.
     SDL_SendAppEvent(SDL_APP_WILLENTERBACKGROUND);
 
-    SuspendingDeferral^deferral = args->SuspendingOperation->GetDeferral();
-    create_task([this, deferral]() {
+    SuspendingDeferral^ deferral = args->SuspendingOperation->GetDeferral();
+    create_task([this, deferral]()
+    {
         // Send an app did-enter-background event immediately to observers.
         // CoreDispatcher::ProcessEvents, which is the backbone on which
         // SDL_WinRTApp::PumpEvents is built, will not return to its caller
@@ -738,7 +714,8 @@ void SDL_WinRTApp::OnSuspending(Platform::Object^sender, SuspendingEventArgs^arg
     });
 }
 
-void SDL_WinRTApp::OnResuming(Platform::Object^sender, Platform::Object^args) {
+void SDL_WinRTApp::OnResuming(Platform::Object^ sender, Platform::Object^ args)
+{
     // Restore any data or state that was unloaded on suspend. By default, data
     // and state are persisted when resuming from suspend. Note that these events
     // do not occur if the app was previously terminated.
@@ -746,25 +723,27 @@ void SDL_WinRTApp::OnResuming(Platform::Object^sender, Platform::Object^args) {
     SDL_SendAppEvent(SDL_APP_DIDENTERFOREGROUND);
 }
 
-void SDL_WinRTApp::OnExiting(Platform::Object^sender, Platform::Object^args) {
+void SDL_WinRTApp::OnExiting(Platform::Object^ sender, Platform::Object^ args)
+{
     SDL_SendAppEvent(SDL_APP_TERMINATING);
 }
 
 static void
-WINRT_LogPointerEvent(const char *header, Windows::UI::Core::PointerEventArgs ^args,
-                      Windows::Foundation::Point transformedPoint) {
-    Windows::UI::Input::PointerPoint ^pt = args->CurrentPoint;
+WINRT_LogPointerEvent(const char * header, Windows::UI::Core::PointerEventArgs ^ args, Windows::Foundation::Point transformedPoint)
+{
+    Windows::UI::Input::PointerPoint ^ pt = args->CurrentPoint;
     SDL_Log("%s: Position={%f,%f}, Transformed Pos={%f, %f}, MouseWheelDelta=%d, FrameId=%d, PointerId=%d, SDL button=%d\n",
-            header,
-            pt->Position.X, pt->Position.Y,
-            transformedPoint.X, transformedPoint.Y,
-            pt->Properties->MouseWheelDelta,
-            pt->FrameId,
-            pt->PointerId,
-            WINRT_GetSDLButtonForPointerPoint(pt));
+        header,
+        pt->Position.X, pt->Position.Y,
+        transformedPoint.X, transformedPoint.Y,
+        pt->Properties->MouseWheelDelta,
+        pt->FrameId,
+        pt->PointerId,
+        WINRT_GetSDLButtonForPointerPoint(pt));
 }
 
-void SDL_WinRTApp::OnPointerPressed(CoreWindow^sender, PointerEventArgs^args) {
+void SDL_WinRTApp::OnPointerPressed(CoreWindow^ sender, PointerEventArgs^ args)
+{
 #if LOG_POINTER_EVENTS
     WINRT_LogPointerEvent("pointer pressed", args, WINRT_TransformCursorPosition(WINRT_GlobalSDLWindow, args->CurrentPoint->Position, TransformToSDLWindowSize));
 #endif
@@ -772,7 +751,8 @@ void SDL_WinRTApp::OnPointerPressed(CoreWindow^sender, PointerEventArgs^args) {
     WINRT_ProcessPointerPressedEvent(WINRT_GlobalSDLWindow, args->CurrentPoint);
 }
 
-void SDL_WinRTApp::OnPointerMoved(CoreWindow^sender, PointerEventArgs^args) {
+void SDL_WinRTApp::OnPointerMoved(CoreWindow^ sender, PointerEventArgs^ args)
+{
 #if LOG_POINTER_EVENTS
     WINRT_LogPointerEvent("pointer moved", args, WINRT_TransformCursorPosition(WINRT_GlobalSDLWindow, args->CurrentPoint->Position, TransformToSDLWindowSize));
 #endif
@@ -780,15 +760,17 @@ void SDL_WinRTApp::OnPointerMoved(CoreWindow^sender, PointerEventArgs^args) {
     WINRT_ProcessPointerMovedEvent(WINRT_GlobalSDLWindow, args->CurrentPoint);
 }
 
-void SDL_WinRTApp::OnPointerReleased(CoreWindow^sender, PointerEventArgs^args) {
+void SDL_WinRTApp::OnPointerReleased(CoreWindow^ sender, PointerEventArgs^ args)
+{
 #if LOG_POINTER_EVENTS
     WINRT_LogPointerEvent("pointer released", args, WINRT_TransformCursorPosition(WINRT_GlobalSDLWindow, args->CurrentPoint->Position, TransformToSDLWindowSize));
 #endif
-
+    
     WINRT_ProcessPointerReleasedEvent(WINRT_GlobalSDLWindow, args->CurrentPoint);
 }
 
-void SDL_WinRTApp::OnPointerEntered(CoreWindow^sender, PointerEventArgs^args) {
+void SDL_WinRTApp::OnPointerEntered(CoreWindow^ sender, PointerEventArgs^ args)
+{
 #if LOG_POINTER_EVENTS
     WINRT_LogPointerEvent("pointer entered", args, WINRT_TransformCursorPosition(WINRT_GlobalSDLWindow, args->CurrentPoint->Position, TransformToSDLWindowSize));
 #endif
@@ -796,7 +778,8 @@ void SDL_WinRTApp::OnPointerEntered(CoreWindow^sender, PointerEventArgs^args) {
     WINRT_ProcessPointerEnteredEvent(WINRT_GlobalSDLWindow, args->CurrentPoint);
 }
 
-void SDL_WinRTApp::OnPointerExited(CoreWindow^sender, PointerEventArgs^args) {
+void SDL_WinRTApp::OnPointerExited(CoreWindow^ sender, PointerEventArgs^ args)
+{
 #if LOG_POINTER_EVENTS
     WINRT_LogPointerEvent("pointer exited", args, WINRT_TransformCursorPosition(WINRT_GlobalSDLWindow, args->CurrentPoint->Position, TransformToSDLWindowSize));
 #endif
@@ -804,7 +787,8 @@ void SDL_WinRTApp::OnPointerExited(CoreWindow^sender, PointerEventArgs^args) {
     WINRT_ProcessPointerExitedEvent(WINRT_GlobalSDLWindow, args->CurrentPoint);
 }
 
-void SDL_WinRTApp::OnPointerWheelChanged(CoreWindow^sender, PointerEventArgs^args) {
+void SDL_WinRTApp::OnPointerWheelChanged(CoreWindow^ sender, PointerEventArgs^ args)
+{
 #if LOG_POINTER_EVENTS
     WINRT_LogPointerEvent("pointer wheel changed", args, WINRT_TransformCursorPosition(WINRT_GlobalSDLWindow, args->CurrentPoint->Position, TransformToSDLWindowSize));
 #endif
@@ -812,27 +796,29 @@ void SDL_WinRTApp::OnPointerWheelChanged(CoreWindow^sender, PointerEventArgs^arg
     WINRT_ProcessPointerWheelChangedEvent(WINRT_GlobalSDLWindow, args->CurrentPoint);
 }
 
-void SDL_WinRTApp::OnMouseMoved(MouseDevice^mouseDevice, MouseEventArgs^args) {
+void SDL_WinRTApp::OnMouseMoved(MouseDevice^ mouseDevice, MouseEventArgs^ args)
+{
     WINRT_ProcessMouseMovedEvent(WINRT_GlobalSDLWindow, args);
 }
 
-void SDL_WinRTApp::OnKeyDown(Windows::UI::Core::CoreWindow^sender,
-                             Windows::UI::Core::KeyEventArgs^args) {
+void SDL_WinRTApp::OnKeyDown(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args)
+{
     WINRT_ProcessKeyDownEvent(args);
 }
 
-void
-SDL_WinRTApp::OnKeyUp(Windows::UI::Core::CoreWindow^sender, Windows::UI::Core::KeyEventArgs^args) {
+void SDL_WinRTApp::OnKeyUp(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args)
+{
     WINRT_ProcessKeyUpEvent(args);
 }
 
-void SDL_WinRTApp::OnCharacterReceived(Windows::UI::Core::CoreWindow^sender,
-                                       Windows::UI::Core::CharacterReceivedEventArgs^args) {
+void SDL_WinRTApp::OnCharacterReceived(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::CharacterReceivedEventArgs^ args)
+{
     WINRT_ProcessCharacterReceivedEvent(args);
 }
 
-template<typename BackButtonEventArgs>
-static void WINRT_OnBackButtonPressed(BackButtonEventArgs ^args) {
+template <typename BackButtonEventArgs>
+static void WINRT_OnBackButtonPressed(BackButtonEventArgs ^ args)
+{
     SDL_SendKeyboardKey(SDL_PRESSED, SDL_SCANCODE_AC_BACK);
     SDL_SendKeyboardKey(SDL_RELEASED, SDL_SCANCODE_AC_BACK);
 
@@ -842,12 +828,11 @@ static void WINRT_OnBackButtonPressed(BackButtonEventArgs ^args) {
 }
 
 #if NTDDI_VERSION >= NTDDI_WIN10
+void SDL_WinRTApp::OnBackButtonPressed(Platform::Object^ sender, Windows::UI::Core::BackRequestedEventArgs^ args)
 
-void SDL_WinRTApp::OnBackButtonPressed(Platform::Object^sender,
-                                       Windows::UI::Core::BackRequestedEventArgs^args) {
+{
     WINRT_OnBackButtonPressed(args);
 }
-
 #elif WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP
 void SDL_WinRTApp::OnBackButtonPressed(Platform::Object^ sender, Windows::Phone::UI::Input::BackPressedEventArgs^ args)
 
@@ -857,16 +842,14 @@ void SDL_WinRTApp::OnBackButtonPressed(Platform::Object^ sender, Windows::Phone:
 #endif
 
 #if NTDDI_VERSION >= NTDDI_WIN10
-
-void
-SDL_WinRTApp::OnGamepadAdded(Platform::Object ^sender, Windows::Gaming::Input::Gamepad ^gamepad) {
+void SDL_WinRTApp::OnGamepadAdded(Platform::Object ^sender, Windows::Gaming::Input::Gamepad ^gamepad)
+{
     /* HACK ALERT: Nothing needs to be done here, as this method currently
        only exists to allow something to be registered with Win10's
        GamepadAdded event, an operation that seems to be necessary to get
        Xinput-based detection to work on Xbox One.
     */
 }
-
 #endif
 
 /* vi: set ts=4 sw=4 expandtab: */

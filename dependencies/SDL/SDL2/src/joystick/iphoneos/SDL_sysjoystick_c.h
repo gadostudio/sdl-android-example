@@ -26,11 +26,10 @@
 #include "SDL_stdinc.h"
 #include "../SDL_sysjoystick.h"
 
-@
+@class GCController;
 
-class GCController;
-
-typedef struct joystick_hwdata {
+typedef struct joystick_hwdata
+{
     SDL_bool accelerometer;
     SDL_bool remote;
 

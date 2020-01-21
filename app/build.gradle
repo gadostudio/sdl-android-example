@@ -15,12 +15,32 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
+            ndkBuild {
+                arguments "APP_STL:=c++_static"
+                cppFlags "-std=c++17","-frtti","-fexceptions"
+            }
         }
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    buildTypes {
+        release {
+            externalNativeBuild {
+                ndkBuild {
+                    cFlags "-DDEBUG_MODE=0"
+                }
+            }
+        }
+        debug {
+            externalNativeBuild {
+                ndkBuild {
+                    cFlags "-DDEBUG_MODE=1"
+                }
+            }
         }
     }
     externalNativeBuild {

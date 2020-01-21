@@ -27,47 +27,50 @@
 
 typedef Uint32 SDL_MouseID;
 
-struct SDL_Cursor {
+struct SDL_Cursor
+{
     struct SDL_Cursor *next;
     void *driverdata;
 };
 
-typedef struct {
+typedef struct
+{
     int last_x, last_y;
     Uint32 last_timestamp;
     Uint8 click_count;
 } SDL_MouseClickState;
 
-typedef struct {
+typedef struct
+{
     /* Create a cursor from a surface */
-    SDL_Cursor *(*CreateCursor)(SDL_Surface *surface, int hot_x, int hot_y);
+    SDL_Cursor *(*CreateCursor) (SDL_Surface * surface, int hot_x, int hot_y);
 
     /* Create a system cursor */
-    SDL_Cursor *(*CreateSystemCursor)(SDL_SystemCursor id);
+    SDL_Cursor *(*CreateSystemCursor) (SDL_SystemCursor id);
 
     /* Show the specified cursor, or hide if cursor is NULL */
-    int (*ShowCursor)(SDL_Cursor *cursor);
+    int (*ShowCursor) (SDL_Cursor * cursor);
 
     /* This is called when a mouse motion event occurs */
-    void (*MoveCursor)(SDL_Cursor *cursor);
+    void (*MoveCursor) (SDL_Cursor * cursor);
 
     /* Free a window manager cursor */
-    void (*FreeCursor)(SDL_Cursor *cursor);
+    void (*FreeCursor) (SDL_Cursor * cursor);
 
     /* Warp the mouse to (x,y) within a window */
-    void (*WarpMouse)(SDL_Window *window, int x, int y);
+    void (*WarpMouse) (SDL_Window * window, int x, int y);
 
     /* Warp the mouse to (x,y) in screen space */
-    int (*WarpMouseGlobal)(int x, int y);
+    int (*WarpMouseGlobal) (int x, int y);
 
     /* Set relative mode */
-    int (*SetRelativeMouseMode)(SDL_bool enabled);
+    int (*SetRelativeMouseMode) (SDL_bool enabled);
 
     /* Set mouse capture */
-    int (*CaptureMouse)(SDL_Window *window);
+    int (*CaptureMouse) (SDL_Window * window);
 
     /* Get absolute mouse coordinates. (x) and (y) are never NULL and set to zero before call. */
-    Uint32 (*GetGlobalMouseState)(int *x, int *y);
+    Uint32 (*GetGlobalMouseState) (int *x, int *y);
 
     /* Data common to all mice */
     SDL_MouseID mouseID;
@@ -114,25 +117,22 @@ extern int SDL_MouseInit(void);
 SDL_Mouse *SDL_GetMouse(void);
 
 /* Set the default mouse cursor */
-extern void SDL_SetDefaultCursor(SDL_Cursor *cursor);
+extern void SDL_SetDefaultCursor(SDL_Cursor * cursor);
 
 /* Set the mouse focus window */
-extern void SDL_SetMouseFocus(SDL_Window *window);
+extern void SDL_SetMouseFocus(SDL_Window * window);
 
 /* Send a mouse motion event */
-extern int SDL_SendMouseMotion(SDL_Window *window, SDL_MouseID mouseID, int relative, int x, int y);
+extern int SDL_SendMouseMotion(SDL_Window * window, SDL_MouseID mouseID, int relative, int x, int y);
 
 /* Send a mouse button event */
-extern int SDL_SendMouseButton(SDL_Window *window, SDL_MouseID mouseID, Uint8 state, Uint8 button);
+extern int SDL_SendMouseButton(SDL_Window * window, SDL_MouseID mouseID, Uint8 state, Uint8 button);
 
 /* Send a mouse button event with a click count */
-extern int
-SDL_SendMouseButtonClicks(SDL_Window *window, SDL_MouseID mouseID, Uint8 state, Uint8 button,
-                          int clicks);
+extern int SDL_SendMouseButtonClicks(SDL_Window * window, SDL_MouseID mouseID, Uint8 state, Uint8 button, int clicks);
 
 /* Send a mouse wheel event */
-extern int SDL_SendMouseWheel(SDL_Window *window, SDL_MouseID mouseID, float x, float y,
-                              SDL_MouseWheelDirection direction);
+extern int SDL_SendMouseWheel(SDL_Window * window, SDL_MouseID mouseID, float x, float y, SDL_MouseWheelDirection direction);
 
 /* Shutdown the mouse subsystem */
 extern void SDL_MouseQuit(void);

@@ -48,11 +48,7 @@
 #pragma comment(lib, "runtimeobject.lib")
 #endif
 
-int CALLBACK
-WinMain(HINSTANCE, HINSTANCE, LPSTR,
-int)
+int CALLBACK WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
-return
-SDL_WinRTRunApp(SDL_main, NULL
-);
+    return SDL_WinRTRunApp(SDL_main, NULL);
 }

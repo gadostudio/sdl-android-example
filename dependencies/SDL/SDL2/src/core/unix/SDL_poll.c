@@ -27,22 +27,21 @@
 #ifdef HAVE_POLL
 #include <poll.h>
 #else
-
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
-
 #endif
-
 #include <errno.h>
 
 
 int
-SDL_IOReady(int fd, SDL_bool forWrite, int timeoutMS) {
+SDL_IOReady(int fd, SDL_bool forWrite, int timeoutMS)
+{
     int result;
 
     /* Note: We don't bother to account for elapsed time if we get EINTR */
-    do {
+    do
+    {
 #ifdef HAVE_POLL
         struct pollfd info;
 
@@ -80,7 +79,7 @@ SDL_IOReady(int fd, SDL_bool forWrite, int timeoutMS) {
         result = select(fd + 1, rfdp, wfdp, NULL, tvp);
 #endif /* HAVE_POLL */
 
-    } while (result < 0 && errno == EINTR);
+    } while ( result < 0 && errno == EINTR );
 
     return result;
 }

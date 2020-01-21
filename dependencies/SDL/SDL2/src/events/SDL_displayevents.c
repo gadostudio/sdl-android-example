@@ -27,19 +27,20 @@
 
 
 int
-SDL_SendDisplayEvent(SDL_VideoDisplay *display, Uint8 displayevent, int data1) {
+SDL_SendDisplayEvent(SDL_VideoDisplay *display, Uint8 displayevent, int data1)
+{
     int posted;
 
     if (!display) {
         return 0;
     }
     switch (displayevent) {
-        case SDL_DISPLAYEVENT_ORIENTATION:
-            if (data1 == SDL_ORIENTATION_UNKNOWN || data1 == display->orientation) {
-                return 0;
-            }
-            display->orientation = (SDL_DisplayOrientation) data1;
-            break;
+    case SDL_DISPLAYEVENT_ORIENTATION:
+        if (data1 == SDL_ORIENTATION_UNKNOWN || data1 == display->orientation) {
+            return 0;
+        }
+        display->orientation = (SDL_DisplayOrientation)data1;
+        break;
     }
 
     /* Post the event, if desired */

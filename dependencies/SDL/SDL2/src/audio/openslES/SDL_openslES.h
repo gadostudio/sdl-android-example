@@ -30,11 +30,12 @@
 
 #define NUM_BUFFERS 2           /* -- Don't lower this! */
 
-struct SDL_PrivateAudioData {
+struct SDL_PrivateAudioData
+{
     /* The file descriptor for the audio device */
-    Uint8 *mixbuff;
-    int next_buffer;
-    Uint8 *pmixbuff[NUM_BUFFERS];
+    Uint8   *mixbuff;
+    int      next_buffer;
+    Uint8   *pmixbuff[NUM_BUFFERS];
     SDL_sem *playsem;
 #if 0
     SDL_sem *recsem;
@@ -42,7 +43,6 @@ struct SDL_PrivateAudioData {
 };
 
 void openslES_ResumeDevices(void);
-
 void openslES_PauseDevices(void);
 
 #endif /* _SDL_openslesaudio_h */

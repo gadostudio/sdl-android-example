@@ -372,96 +372,113 @@ SDL_XINPUT_HapticStopAll(SDL_Haptic * haptic)
 typedef struct SDL_hapticlist_item SDL_hapticlist_item;
 
 int
-SDL_XINPUT_HapticInit(void) {
+SDL_XINPUT_HapticInit(void)
+{
     return 0;
 }
 
 int
-SDL_XINPUT_MaybeAddDevice(const DWORD dwUserid) {
+SDL_XINPUT_MaybeAddDevice(const DWORD dwUserid)
+{
     return SDL_Unsupported();
 }
 
 int
-SDL_XINPUT_MaybeRemoveDevice(const DWORD dwUserid) {
+SDL_XINPUT_MaybeRemoveDevice(const DWORD dwUserid)
+{
     return SDL_Unsupported();
 }
 
 int
-SDL_XINPUT_HapticOpen(SDL_Haptic *haptic, SDL_hapticlist_item *item) {
+SDL_XINPUT_HapticOpen(SDL_Haptic * haptic, SDL_hapticlist_item *item)
+{
     return SDL_Unsupported();
 }
 
 int
-SDL_XINPUT_JoystickSameHaptic(SDL_Haptic *haptic, SDL_Joystick *joystick) {
+SDL_XINPUT_JoystickSameHaptic(SDL_Haptic * haptic, SDL_Joystick * joystick)
+{
     return SDL_Unsupported();
 }
 
 int
-SDL_XINPUT_HapticOpenFromJoystick(SDL_Haptic *haptic, SDL_Joystick *joystick) {
-    return SDL_Unsupported();
-}
-
-void
-SDL_XINPUT_HapticClose(SDL_Haptic *haptic) {
-}
-
-void
-SDL_XINPUT_HapticQuit(void) {
-}
-
-int
-SDL_XINPUT_HapticNewEffect(SDL_Haptic *haptic, struct haptic_effect *effect,
-                           SDL_HapticEffect *base) {
-    return SDL_Unsupported();
-}
-
-int
-SDL_XINPUT_HapticUpdateEffect(SDL_Haptic *haptic, struct haptic_effect *effect,
-                              SDL_HapticEffect *data) {
-    return SDL_Unsupported();
-}
-
-int
-SDL_XINPUT_HapticRunEffect(SDL_Haptic *haptic, struct haptic_effect *effect, Uint32 iterations) {
-    return SDL_Unsupported();
-}
-
-int
-SDL_XINPUT_HapticStopEffect(SDL_Haptic *haptic, struct haptic_effect *effect) {
+SDL_XINPUT_HapticOpenFromJoystick(SDL_Haptic * haptic, SDL_Joystick * joystick)
+{
     return SDL_Unsupported();
 }
 
 void
-SDL_XINPUT_HapticDestroyEffect(SDL_Haptic *haptic, struct haptic_effect *effect) {
+SDL_XINPUT_HapticClose(SDL_Haptic * haptic)
+{
+}
+
+void
+SDL_XINPUT_HapticQuit(void)
+{
 }
 
 int
-SDL_XINPUT_HapticGetEffectStatus(SDL_Haptic *haptic, struct haptic_effect *effect) {
+SDL_XINPUT_HapticNewEffect(SDL_Haptic * haptic, struct haptic_effect *effect, SDL_HapticEffect * base)
+{
     return SDL_Unsupported();
 }
 
 int
-SDL_XINPUT_HapticSetGain(SDL_Haptic *haptic, int gain) {
+SDL_XINPUT_HapticUpdateEffect(SDL_Haptic * haptic, struct haptic_effect *effect, SDL_HapticEffect * data)
+{
     return SDL_Unsupported();
 }
 
 int
-SDL_XINPUT_HapticSetAutocenter(SDL_Haptic *haptic, int autocenter) {
+SDL_XINPUT_HapticRunEffect(SDL_Haptic * haptic, struct haptic_effect *effect, Uint32 iterations)
+{
     return SDL_Unsupported();
 }
 
 int
-SDL_XINPUT_HapticPause(SDL_Haptic *haptic) {
+SDL_XINPUT_HapticStopEffect(SDL_Haptic * haptic, struct haptic_effect *effect)
+{
+    return SDL_Unsupported();
+}
+
+void
+SDL_XINPUT_HapticDestroyEffect(SDL_Haptic * haptic, struct haptic_effect *effect)
+{
+}
+
+int
+SDL_XINPUT_HapticGetEffectStatus(SDL_Haptic * haptic, struct haptic_effect *effect)
+{
     return SDL_Unsupported();
 }
 
 int
-SDL_XINPUT_HapticUnpause(SDL_Haptic *haptic) {
+SDL_XINPUT_HapticSetGain(SDL_Haptic * haptic, int gain)
+{
     return SDL_Unsupported();
 }
 
 int
-SDL_XINPUT_HapticStopAll(SDL_Haptic *haptic) {
+SDL_XINPUT_HapticSetAutocenter(SDL_Haptic * haptic, int autocenter)
+{
+    return SDL_Unsupported();
+}
+
+int
+SDL_XINPUT_HapticPause(SDL_Haptic * haptic)
+{
+    return SDL_Unsupported();
+}
+
+int
+SDL_XINPUT_HapticUnpause(SDL_Haptic * haptic)
+{
+    return SDL_Unsupported();
+}
+
+int
+SDL_XINPUT_HapticStopAll(SDL_Haptic * haptic)
+{
     return SDL_Unsupported();
 }
 

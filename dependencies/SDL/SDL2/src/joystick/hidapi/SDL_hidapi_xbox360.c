@@ -247,8 +247,8 @@ HIDAPI_DriverXbox360_QuitWindowsGamingInput(SDL_DriverXbox360_Context *ctx)
 #endif /* SDL_JOYSTICK_HIDAPI_WINDOWS_GAMING_INPUT */
 
 static SDL_bool
-HIDAPI_DriverXbox360_IsSupportedDevice(Uint16 vendor_id, Uint16 product_id, Uint16 version,
-                                       int interface_number) {
+HIDAPI_DriverXbox360_IsSupportedDevice(Uint16 vendor_id, Uint16 product_id, Uint16 version, int interface_number)
+{
 #if defined(__MACOSX__) || defined(__WIN32__)
     if (vendor_id == 0x045e && product_id == 0x028e && version == 1) {
         /* This is the Steam Virtual Gamepad, which isn't supported by this driver */
@@ -265,12 +265,14 @@ HIDAPI_DriverXbox360_IsSupportedDevice(Uint16 vendor_id, Uint16 product_id, Uint
 }
 
 static const char *
-HIDAPI_DriverXbox360_GetDeviceName(Uint16 vendor_id, Uint16 product_id) {
+HIDAPI_DriverXbox360_GetDeviceName(Uint16 vendor_id, Uint16 product_id)
+{
     return HIDAPI_XboxControllerName(vendor_id, product_id);
 }
 
-static SDL_bool SetSlotLED(hid_device *dev, Uint8 slot) {
-    const Uint8 led_packet[] = {0x01, 0x03, (2 + slot)};
+static SDL_bool SetSlotLED(hid_device *dev, Uint8 slot)
+{
+    const Uint8 led_packet[] = { 0x01, 0x03, (2 + slot) };
 
     if (hid_write(dev, led_packet, sizeof(led_packet)) != sizeof(led_packet)) {
         return SDL_FALSE;
@@ -279,11 +281,11 @@ static SDL_bool SetSlotLED(hid_device *dev, Uint8 slot) {
 }
 
 static SDL_bool
-HIDAPI_DriverXbox360_Init(SDL_Joystick *joystick, hid_device *dev, Uint16 vendor_id,
-                          Uint16 product_id, void **context) {
+HIDAPI_DriverXbox360_Init(SDL_Joystick *joystick, hid_device *dev, Uint16 vendor_id, Uint16 product_id, void **context)
+{
     SDL_DriverXbox360_Context *ctx;
 
-    ctx = (SDL_DriverXbox360_Context *) SDL_calloc(1, sizeof(*ctx));
+    ctx = (SDL_DriverXbox360_Context *)SDL_calloc(1, sizeof(*ctx));
     if (!ctx) {
         SDL_OutOfMemory();
         return SDL_FALSE;
@@ -312,10 +314,9 @@ HIDAPI_DriverXbox360_Init(SDL_Joystick *joystick, hid_device *dev, Uint16 vendor
 }
 
 static int
-HIDAPI_DriverXbox360_Rumble(SDL_Joystick *joystick, hid_device *dev, void *context,
-                            Uint16 low_frequency_rumble, Uint16 high_frequency_rumble,
-                            Uint32 duration_ms) {
-    SDL_DriverXbox360_Context *ctx = (SDL_DriverXbox360_Context *) context;
+HIDAPI_DriverXbox360_Rumble(SDL_Joystick *joystick, hid_device *dev, void *context, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble, Uint32 duration_ms)
+{
+    SDL_DriverXbox360_Context *ctx = (SDL_DriverXbox360_Context *)context;
 
 #ifdef __WIN32__
     SDL_bool rumbled = SDL_FALSE;
@@ -362,7 +363,7 @@ HIDAPI_DriverXbox360_Rumble(SDL_Joystick *joystick, hid_device *dev, void *conte
     rumble_packet[6+2] = (low_frequency_rumble >> 8);
     rumble_packet[6+3] = (high_frequency_rumble >> 8);
 #else
-    Uint8 rumble_packet[] = {0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    Uint8 rumble_packet[] = { 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
     rumble_packet[3] = (low_frequency_rumble >> 8);
     rumble_packet[4] = (high_frequency_rumble >> 8);
@@ -382,180 +383,180 @@ HIDAPI_DriverXbox360_Rumble(SDL_Joystick *joystick, hid_device *dev, void *conte
 }
 
 #ifdef __WIN32__
-/* This is the packet format for Xbox 360 and Xbox One controllers on Windows,
-   however with this interface there is no rumble support, no guide button,
-   and the left and right triggers are tied together as a single axis.
+ /* This is the packet format for Xbox 360 and Xbox One controllers on Windows,
+    however with this interface there is no rumble support, no guide button,
+    and the left and right triggers are tied together as a single axis.
 
-   We use XInput and Windows.Gaming.Input to make up for these shortcomings.
- */
+    We use XInput and Windows.Gaming.Input to make up for these shortcomings.
+  */
 static void
 HIDAPI_DriverXbox360_HandleStatePacket(SDL_Joystick *joystick, hid_device *dev, SDL_DriverXbox360_Context *ctx, Uint8 *data, int size)
 {
-   Sint16 axis;
-   SDL_bool has_trigger_data = SDL_FALSE;
+    Sint16 axis;
+    SDL_bool has_trigger_data = SDL_FALSE;
 
-   if (ctx->last_state[10] != data[10]) {
-       SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_A, (data[10] & 0x01) ? SDL_PRESSED : SDL_RELEASED);
-       SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_B, (data[10] & 0x02) ? SDL_PRESSED : SDL_RELEASED);
-       SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_X, (data[10] & 0x04) ? SDL_PRESSED : SDL_RELEASED);
-       SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_Y, (data[10] & 0x08) ? SDL_PRESSED : SDL_RELEASED);
-       SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_LEFTSHOULDER, (data[10] & 0x10) ? SDL_PRESSED : SDL_RELEASED);
-       SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER, (data[10] & 0x20) ? SDL_PRESSED : SDL_RELEASED);
-       SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_BACK, (data[10] & 0x40) ? SDL_PRESSED : SDL_RELEASED);
-       SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_START, (data[10] & 0x80) ? SDL_PRESSED : SDL_RELEASED);
-   }
+    if (ctx->last_state[10] != data[10]) {
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_A, (data[10] & 0x01) ? SDL_PRESSED : SDL_RELEASED);
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_B, (data[10] & 0x02) ? SDL_PRESSED : SDL_RELEASED);
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_X, (data[10] & 0x04) ? SDL_PRESSED : SDL_RELEASED);
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_Y, (data[10] & 0x08) ? SDL_PRESSED : SDL_RELEASED);
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_LEFTSHOULDER, (data[10] & 0x10) ? SDL_PRESSED : SDL_RELEASED);
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER, (data[10] & 0x20) ? SDL_PRESSED : SDL_RELEASED);
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_BACK, (data[10] & 0x40) ? SDL_PRESSED : SDL_RELEASED);
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_START, (data[10] & 0x80) ? SDL_PRESSED : SDL_RELEASED);
+    }
 
-   if (ctx->last_state[11] != data[11]) {
-       SDL_bool dpad_up = SDL_FALSE;
-       SDL_bool dpad_down = SDL_FALSE;
-       SDL_bool dpad_left = SDL_FALSE;
-       SDL_bool dpad_right = SDL_FALSE;
+    if (ctx->last_state[11] != data[11]) {
+        SDL_bool dpad_up = SDL_FALSE;
+        SDL_bool dpad_down = SDL_FALSE;
+        SDL_bool dpad_left = SDL_FALSE;
+        SDL_bool dpad_right = SDL_FALSE;
 
-       SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_LEFTSTICK, (data[11] & 0x01) ? SDL_PRESSED : SDL_RELEASED);
-       SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_RIGHTSTICK, (data[11] & 0x02) ? SDL_PRESSED : SDL_RELEASED);
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_LEFTSTICK, (data[11] & 0x01) ? SDL_PRESSED : SDL_RELEASED);
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_RIGHTSTICK, (data[11] & 0x02) ? SDL_PRESSED : SDL_RELEASED);
 
-       switch (data[11] & 0x3C) {
-       case 4:
-           dpad_up = SDL_TRUE;
-           break;
-       case 8:
-           dpad_up = SDL_TRUE;
-           dpad_right = SDL_TRUE;
-           break;
-       case 12:
-           dpad_right = SDL_TRUE;
-           break;
-       case 16:
-           dpad_right = SDL_TRUE;
-           dpad_down = SDL_TRUE;
-           break;
-       case 20:
-           dpad_down = SDL_TRUE;
-           break;
-       case 24:
-           dpad_left = SDL_TRUE;
-           dpad_down = SDL_TRUE;
-           break;
-       case 28:
-           dpad_left = SDL_TRUE;
-           break;
-       case 32:
-           dpad_up = SDL_TRUE;
-           dpad_left = SDL_TRUE;
-           break;
-       default:
-           break;
-       }
-       SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_DPAD_DOWN, dpad_down);
-       SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_DPAD_UP, dpad_up);
-       SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_DPAD_RIGHT, dpad_right);
-       SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_DPAD_LEFT, dpad_left);
-   }
+        switch (data[11] & 0x3C) {
+        case 4:
+            dpad_up = SDL_TRUE;
+            break;
+        case 8:
+            dpad_up = SDL_TRUE;
+            dpad_right = SDL_TRUE;
+            break;
+        case 12:
+            dpad_right = SDL_TRUE;
+            break;
+        case 16:
+            dpad_right = SDL_TRUE;
+            dpad_down = SDL_TRUE;
+            break;
+        case 20:
+            dpad_down = SDL_TRUE;
+            break;
+        case 24:
+            dpad_left = SDL_TRUE;
+            dpad_down = SDL_TRUE;
+            break;
+        case 28:
+            dpad_left = SDL_TRUE;
+            break;
+        case 32:
+            dpad_up = SDL_TRUE;
+            dpad_left = SDL_TRUE;
+            break;
+        default:
+            break;
+        }
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_DPAD_DOWN, dpad_down);
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_DPAD_UP, dpad_up);
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_DPAD_RIGHT, dpad_right);
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_DPAD_LEFT, dpad_left);
+    }
 
-   axis = (int)*(Uint16*)(&data[0]) - 0x8000;
-   SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_LEFTX, axis);
-   axis = (int)*(Uint16*)(&data[2]) - 0x8000;
-   SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_LEFTY, axis);
-   axis = (int)*(Uint16*)(&data[4]) - 0x8000;
-   SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_RIGHTX, axis);
-   axis = (int)*(Uint16*)(&data[6]) - 0x8000;
-   SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_RIGHTY, axis);
+    axis = (int)*(Uint16*)(&data[0]) - 0x8000;
+    SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_LEFTX, axis);
+    axis = (int)*(Uint16*)(&data[2]) - 0x8000;
+    SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_LEFTY, axis);
+    axis = (int)*(Uint16*)(&data[4]) - 0x8000;
+    SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_RIGHTX, axis);
+    axis = (int)*(Uint16*)(&data[6]) - 0x8000;
+    SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_RIGHTY, axis);
 
 #ifdef SDL_JOYSTICK_HIDAPI_WINDOWS_GAMING_INPUT
-   if (ctx->gamepad_statics && !ctx->gamepad) {
-       Uint8 buttons = 0;
+    if (ctx->gamepad_statics && !ctx->gamepad) {
+        Uint8 buttons = 0;
 
-       if (data[10] & 0x01) {
-           buttons |= (1 << SDL_CONTROLLER_BUTTON_A);
-       }
-       if (data[10] & 0x02) {
-           buttons |= (1 << SDL_CONTROLLER_BUTTON_B);
-       }
-       if (data[10] & 0x04) {
-           buttons |= (1 << SDL_CONTROLLER_BUTTON_X);
-       }
-       if (data[10] & 0x08) {
-           buttons |= (1 << SDL_CONTROLLER_BUTTON_Y);
-       }
-       if (buttons != 0) {
-           HIDAPI_DriverXbox360_GuessGamepad(ctx, buttons);
-       }
-   }
+        if (data[10] & 0x01) {
+            buttons |= (1 << SDL_CONTROLLER_BUTTON_A);
+        }
+        if (data[10] & 0x02) {
+            buttons |= (1 << SDL_CONTROLLER_BUTTON_B);
+        }
+        if (data[10] & 0x04) {
+            buttons |= (1 << SDL_CONTROLLER_BUTTON_X);
+        }
+        if (data[10] & 0x08) {
+            buttons |= (1 << SDL_CONTROLLER_BUTTON_Y);
+        }
+        if (buttons != 0) {
+            HIDAPI_DriverXbox360_GuessGamepad(ctx, buttons);
+        }
+    }
 
-   if (ctx->gamepad) {
-       HRESULT hr;
-       struct __x_ABI_CWindows_CGaming_CInput_CGamepadReading state;
-
-       hr = __x_ABI_CWindows_CGaming_CInput_CIGamepad_GetCurrentReading(ctx->gamepad, &state);
-       if (SUCCEEDED(hr)) {
-           SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_GUIDE, (state.Buttons & 0x40000000) ? SDL_PRESSED : SDL_RELEASED);
-           SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_TRIGGERLEFT, ((int)(state.LeftTrigger * SDL_MAX_UINT16)) - 32768);
-           SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_TRIGGERRIGHT, ((int)(state.RightTrigger * SDL_MAX_UINT16)) - 32768);
-           has_trigger_data = SDL_TRUE;
-       }
-   }
+    if (ctx->gamepad) {
+        HRESULT hr;
+        struct __x_ABI_CWindows_CGaming_CInput_CGamepadReading state;
+        
+        hr = __x_ABI_CWindows_CGaming_CInput_CIGamepad_GetCurrentReading(ctx->gamepad, &state);
+        if (SUCCEEDED(hr)) {
+            SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_GUIDE, (state.Buttons & 0x40000000) ? SDL_PRESSED : SDL_RELEASED);
+            SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_TRIGGERLEFT, ((int)(state.LeftTrigger * SDL_MAX_UINT16)) - 32768);
+            SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_TRIGGERRIGHT, ((int)(state.RightTrigger * SDL_MAX_UINT16)) - 32768);
+            has_trigger_data = SDL_TRUE;
+        }
+    }
 #endif /* SDL_JOYSTICK_HIDAPI_WINDOWS_GAMING_INPUT */
 
 #ifdef SDL_JOYSTICK_HIDAPI_WINDOWS_XINPUT
-   if (ctx->xinput_enabled) {
-       if (ctx->xinput_slot == XUSER_INDEX_ANY && HIDAPI_DriverXbox360_MissingXInputSlot()) {
-           WORD wButtons = 0;
+    if (ctx->xinput_enabled) {
+        if (ctx->xinput_slot == XUSER_INDEX_ANY && HIDAPI_DriverXbox360_MissingXInputSlot()) {
+            WORD wButtons = 0;
 
-           if (data[10] & 0x01) {
-               wButtons |= XINPUT_GAMEPAD_A;
-           }
-           if (data[10] & 0x02) {
-               wButtons |= XINPUT_GAMEPAD_B;
-           }
-           if (data[10] & 0x04) {
-               wButtons |= XINPUT_GAMEPAD_X;
-           }
-           if (data[10] & 0x08) {
-               wButtons |= XINPUT_GAMEPAD_Y;
-           }
-           if (wButtons != 0) {
-               Uint8 xinput_slot = HIDAPI_DriverXbox360_GuessXInputSlot(wButtons);
-               if (xinput_slot != XUSER_INDEX_ANY) {
-                   HIDAPI_DriverXbox360_MarkXInputSlotUsed(xinput_slot);
-                   ctx->xinput_slot = xinput_slot;
-               }
-           }
-       }
+            if (data[10] & 0x01) {
+                wButtons |= XINPUT_GAMEPAD_A;
+            }
+            if (data[10] & 0x02) {
+                wButtons |= XINPUT_GAMEPAD_B;
+            }
+            if (data[10] & 0x04) {
+                wButtons |= XINPUT_GAMEPAD_X;
+            }
+            if (data[10] & 0x08) {
+                wButtons |= XINPUT_GAMEPAD_Y;
+            }
+            if (wButtons != 0) {
+                Uint8 xinput_slot = HIDAPI_DriverXbox360_GuessXInputSlot(wButtons);
+                if (xinput_slot != XUSER_INDEX_ANY) {
+                    HIDAPI_DriverXbox360_MarkXInputSlotUsed(xinput_slot);
+                    ctx->xinput_slot = xinput_slot;
+                }
+            }
+        }
 
-       if (!has_trigger_data && ctx->xinput_slot != XUSER_INDEX_ANY) {
-           XINPUT_STATE_EX xinput_state;
+        if (!has_trigger_data && ctx->xinput_slot != XUSER_INDEX_ANY) {
+            XINPUT_STATE_EX xinput_state;
 
-           if (XINPUTGETSTATE(ctx->xinput_slot, &xinput_state) == ERROR_SUCCESS) {
-               SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_GUIDE, (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_GUIDE) ? SDL_PRESSED : SDL_RELEASED);
-               SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_TRIGGERLEFT, ((int)xinput_state.Gamepad.bLeftTrigger * 257) - 32768);
-               SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_TRIGGERRIGHT, ((int)xinput_state.Gamepad.bRightTrigger * 257) - 32768);
-               has_trigger_data = SDL_TRUE;
-           }
-       }
-   }
+            if (XINPUTGETSTATE(ctx->xinput_slot, &xinput_state) == ERROR_SUCCESS) {
+                SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_GUIDE, (xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_GUIDE) ? SDL_PRESSED : SDL_RELEASED);
+                SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_TRIGGERLEFT, ((int)xinput_state.Gamepad.bLeftTrigger * 257) - 32768);
+                SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_TRIGGERRIGHT, ((int)xinput_state.Gamepad.bRightTrigger * 257) - 32768);
+                has_trigger_data = SDL_TRUE;
+            }
+        }
+    }
 #endif /* SDL_JOYSTICK_HIDAPI_WINDOWS_XINPUT */
 
-   if (!has_trigger_data) {
-       axis = (data[9] * 257) - 32768;
-       if (data[9] < 0x80) {
-           axis = -axis * 2 - 32769;
-           SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_TRIGGERRIGHT, axis);
-       } else if (data[9] > 0x80) {
-           axis = axis * 2 - 32767;
-           SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_TRIGGERLEFT, axis);
-       } else {
-           SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_TRIGGERLEFT, SDL_MIN_SINT16);
-           SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_TRIGGERRIGHT, SDL_MIN_SINT16);
-       }
-   }
+    if (!has_trigger_data) {
+        axis = (data[9] * 257) - 32768;
+        if (data[9] < 0x80) {
+            axis = -axis * 2 - 32769;
+            SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_TRIGGERRIGHT, axis);
+        } else if (data[9] > 0x80) {
+            axis = axis * 2 - 32767;
+            SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_TRIGGERLEFT, axis);
+        } else {
+            SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_TRIGGERLEFT, SDL_MIN_SINT16);
+            SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_TRIGGERRIGHT, SDL_MIN_SINT16);
+        }
+    }
 
-   SDL_memcpy(ctx->last_state, data, SDL_min(size, sizeof(ctx->last_state)));
+    SDL_memcpy(ctx->last_state, data, SDL_min(size, sizeof(ctx->last_state)));
 }
 #else
 
 static void
-HIDAPI_DriverXbox360_HandleStatePacket(SDL_Joystick *joystick, hid_device *dev,
-                                       SDL_DriverXbox360_Context *ctx, Uint8 *data, int size) {
+HIDAPI_DriverXbox360_HandleStatePacket(SDL_Joystick *joystick, hid_device *dev, SDL_DriverXbox360_Context *ctx, Uint8 *data, int size)
+{
     Sint16 axis;
 #ifdef __MACOSX__
     const SDL_bool invert_y_axes = SDL_FALSE;
@@ -564,55 +565,40 @@ HIDAPI_DriverXbox360_HandleStatePacket(SDL_Joystick *joystick, hid_device *dev,
 #endif
 
     if (ctx->last_state[2] != data[2]) {
-        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_DPAD_UP,
-                                  (data[2] & 0x01) ? SDL_PRESSED : SDL_RELEASED);
-        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_DPAD_DOWN,
-                                  (data[2] & 0x02) ? SDL_PRESSED : SDL_RELEASED);
-        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_DPAD_LEFT,
-                                  (data[2] & 0x04) ? SDL_PRESSED : SDL_RELEASED);
-        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_DPAD_RIGHT,
-                                  (data[2] & 0x08) ? SDL_PRESSED : SDL_RELEASED);
-        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_START,
-                                  (data[2] & 0x10) ? SDL_PRESSED : SDL_RELEASED);
-        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_BACK,
-                                  (data[2] & 0x20) ? SDL_PRESSED : SDL_RELEASED);
-        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_LEFTSTICK,
-                                  (data[2] & 0x40) ? SDL_PRESSED : SDL_RELEASED);
-        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_RIGHTSTICK,
-                                  (data[2] & 0x80) ? SDL_PRESSED : SDL_RELEASED);
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_DPAD_UP, (data[2] & 0x01) ? SDL_PRESSED : SDL_RELEASED);
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_DPAD_DOWN, (data[2] & 0x02) ? SDL_PRESSED : SDL_RELEASED);
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_DPAD_LEFT, (data[2] & 0x04) ? SDL_PRESSED : SDL_RELEASED);
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_DPAD_RIGHT, (data[2] & 0x08) ? SDL_PRESSED : SDL_RELEASED);
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_START, (data[2] & 0x10) ? SDL_PRESSED : SDL_RELEASED);
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_BACK, (data[2] & 0x20) ? SDL_PRESSED : SDL_RELEASED);
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_LEFTSTICK, (data[2] & 0x40) ? SDL_PRESSED : SDL_RELEASED);
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_RIGHTSTICK, (data[2] & 0x80) ? SDL_PRESSED : SDL_RELEASED);
     }
 
     if (ctx->last_state[3] != data[3]) {
-        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_LEFTSHOULDER,
-                                  (data[3] & 0x01) ? SDL_PRESSED : SDL_RELEASED);
-        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER,
-                                  (data[3] & 0x02) ? SDL_PRESSED : SDL_RELEASED);
-        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_GUIDE,
-                                  (data[3] & 0x04) ? SDL_PRESSED : SDL_RELEASED);
-        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_A,
-                                  (data[3] & 0x10) ? SDL_PRESSED : SDL_RELEASED);
-        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_B,
-                                  (data[3] & 0x20) ? SDL_PRESSED : SDL_RELEASED);
-        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_X,
-                                  (data[3] & 0x40) ? SDL_PRESSED : SDL_RELEASED);
-        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_Y,
-                                  (data[3] & 0x80) ? SDL_PRESSED : SDL_RELEASED);
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_LEFTSHOULDER, (data[3] & 0x01) ? SDL_PRESSED : SDL_RELEASED);
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER, (data[3] & 0x02) ? SDL_PRESSED : SDL_RELEASED);
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_GUIDE, (data[3] & 0x04) ? SDL_PRESSED : SDL_RELEASED);
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_A, (data[3] & 0x10) ? SDL_PRESSED : SDL_RELEASED);
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_B, (data[3] & 0x20) ? SDL_PRESSED : SDL_RELEASED);
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_X, (data[3] & 0x40) ? SDL_PRESSED : SDL_RELEASED);
+        SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_Y, (data[3] & 0x80) ? SDL_PRESSED : SDL_RELEASED);
     }
 
-    axis = ((int) data[4] * 257) - 32768;
+    axis = ((int)data[4] * 257) - 32768;
     SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_TRIGGERLEFT, axis);
-    axis = ((int) data[5] * 257) - 32768;
+    axis = ((int)data[5] * 257) - 32768;
     SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_TRIGGERRIGHT, axis);
-    axis = *(Sint16 *) (&data[6]);
+    axis = *(Sint16*)(&data[6]);
     SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_LEFTX, axis);
-    axis = *(Sint16 *) (&data[8]);
+    axis = *(Sint16*)(&data[8]);
     if (invert_y_axes) {
         axis = ~axis;
     }
     SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_LEFTY, axis);
-    axis = *(Sint16 *) (&data[10]);
+    axis = *(Sint16*)(&data[10]);
     SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_RIGHTX, axis);
-    axis = *(Sint16 *) (&data[12]);
+    axis = *(Sint16*)(&data[12]);
     if (invert_y_axes) {
         axis = ~axis;
     }
@@ -620,7 +606,6 @@ HIDAPI_DriverXbox360_HandleStatePacket(SDL_Joystick *joystick, hid_device *dev,
 
     SDL_memcpy(ctx->last_state, data, SDL_min(size, sizeof(ctx->last_state)));
 }
-
 #endif /* __WIN32__ */
 
 #ifdef __MACOSX__
@@ -724,8 +709,9 @@ HIDAPI_DriverXboxOneS_HandleGuidePacket(SDL_Joystick *joystick, hid_device *dev,
 #endif /* __MACOSX__ */
 
 static SDL_bool
-HIDAPI_DriverXbox360_Update(SDL_Joystick *joystick, hid_device *dev, void *context) {
-    SDL_DriverXbox360_Context *ctx = (SDL_DriverXbox360_Context *) context;
+HIDAPI_DriverXbox360_Update(SDL_Joystick *joystick, hid_device *dev, void *context)
+{
+    SDL_DriverXbox360_Context *ctx = (SDL_DriverXbox360_Context *)context;
     Uint8 data[USB_PACKET_LENGTH];
     int size;
 
@@ -734,25 +720,25 @@ HIDAPI_DriverXbox360_Update(SDL_Joystick *joystick, hid_device *dev, void *conte
         HIDAPI_DriverXbox360_HandleStatePacket(joystick, dev, ctx, data, size);
 #else
         switch (data[0]) {
-            case 0x00:
-                HIDAPI_DriverXbox360_HandleStatePacket(joystick, dev, ctx, data, size);
-                break;
+        case 0x00:
+            HIDAPI_DriverXbox360_HandleStatePacket(joystick, dev, ctx, data, size);
+            break;
 #ifdef __MACOSX__
-            case 0x01:
-                HIDAPI_DriverXboxOneS_HandleStatePacket(joystick, dev, ctx, data, size);
-                break;
-            case 0x02:
-                HIDAPI_DriverXboxOneS_HandleGuidePacket(joystick, dev, ctx, data, size);
-                break;
+        case 0x01:
+            HIDAPI_DriverXboxOneS_HandleStatePacket(joystick, dev, ctx, data, size);
+            break;
+        case 0x02:
+            HIDAPI_DriverXboxOneS_HandleGuidePacket(joystick, dev, ctx, data, size);
+            break;
 #endif
-            default:
+        default:
 #ifdef DEBUG_JOYSTICK
-                SDL_Log("Unknown Xbox 360 packet, size = %d\n", size);
-                SDL_Log("%.2x %.2x %.2x %.2x %.2x %.2x %.2x %.2x %.2x %.2x %.2x %.2x %.2x %.2x %.2x %.2x %.2x\n",
-                    data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7],
-                    data[8], data[9], data[10], data[11], data[12], data[13], data[14], data[15], data[16]);
+            SDL_Log("Unknown Xbox 360 packet, size = %d\n", size);
+            SDL_Log("%.2x %.2x %.2x %.2x %.2x %.2x %.2x %.2x %.2x %.2x %.2x %.2x %.2x %.2x %.2x %.2x %.2x\n",
+                data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7],
+                data[8], data[9], data[10], data[11], data[12], data[13], data[14], data[15], data[16]);
 #endif
-                break;
+            break;
         }
 #endif /* __WIN32__ */
     }
@@ -768,7 +754,8 @@ HIDAPI_DriverXbox360_Update(SDL_Joystick *joystick, hid_device *dev, void *conte
 }
 
 static void
-HIDAPI_DriverXbox360_Quit(SDL_Joystick *joystick, hid_device *dev, void *context) {
+HIDAPI_DriverXbox360_Quit(SDL_Joystick *joystick, hid_device *dev, void *context)
+{
 #if defined(SDL_JOYSTICK_HIDAPI_WINDOWS_XINPUT) || defined(SDL_JOYSTICK_HIDAPI_WINDOWS_GAMING_INPUT)
     SDL_DriverXbox360_Context *ctx = (SDL_DriverXbox360_Context *)context;
 #endif
@@ -786,16 +773,16 @@ HIDAPI_DriverXbox360_Quit(SDL_Joystick *joystick, hid_device *dev, void *context
 }
 
 SDL_HIDAPI_DeviceDriver SDL_HIDAPI_DriverXbox360 =
-        {
-                SDL_HINT_JOYSTICK_HIDAPI_XBOX,
-                SDL_TRUE,
-                HIDAPI_DriverXbox360_IsSupportedDevice,
-                HIDAPI_DriverXbox360_GetDeviceName,
-                HIDAPI_DriverXbox360_Init,
-                HIDAPI_DriverXbox360_Rumble,
-                HIDAPI_DriverXbox360_Update,
-                HIDAPI_DriverXbox360_Quit
-        };
+{
+    SDL_HINT_JOYSTICK_HIDAPI_XBOX,
+    SDL_TRUE,
+    HIDAPI_DriverXbox360_IsSupportedDevice,
+    HIDAPI_DriverXbox360_GetDeviceName,
+    HIDAPI_DriverXbox360_Init,
+    HIDAPI_DriverXbox360_Rumble,
+    HIDAPI_DriverXbox360_Update,
+    HIDAPI_DriverXbox360_Quit
+};
 
 #endif /* SDL_JOYSTICK_HIDAPI_XBOX360 */
 

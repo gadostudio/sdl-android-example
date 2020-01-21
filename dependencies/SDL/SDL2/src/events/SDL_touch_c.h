@@ -24,12 +24,13 @@
 #ifndef SDL_touch_c_h_
 #define SDL_touch_c_h_
 
-typedef struct SDL_Touch {
+typedef struct SDL_Touch
+{
     SDL_TouchID id;
     SDL_TouchDeviceType type;
     int num_fingers;
     int max_fingers;
-    SDL_Finger **fingers;
+    SDL_Finger** fingers;
 } SDL_Touch;
 
 

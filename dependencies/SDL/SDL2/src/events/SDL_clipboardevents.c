@@ -28,7 +28,8 @@
 
 
 int
-SDL_SendClipboardUpdate(void) {
+SDL_SendClipboardUpdate(void)
+{
     int posted;
 
     /* Post the event, if desired */

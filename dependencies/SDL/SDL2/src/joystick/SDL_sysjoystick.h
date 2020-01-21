@@ -29,7 +29,8 @@
 #include "SDL_joystick_c.h"
 
 /* The SDL joystick structure */
-typedef struct _SDL_JoystickAxisInfo {
+typedef struct _SDL_JoystickAxisInfo
+{
     Sint16 initial_value;       /* Initial axis state */
     Sint16 value;               /* Current axis state */
     Sint16 zero;                /* Zero point on the axis (-32768 for triggers) */
@@ -37,7 +38,8 @@ typedef struct _SDL_JoystickAxisInfo {
     SDL_bool sent_initial_value; /* Whether we've sent the initial axis value */
 } SDL_JoystickAxisInfo;
 
-struct _SDL_Joystick {
+struct _SDL_Joystick
+{
     SDL_JoystickID instance_id; /* Device instance, monotonically increasing from 0 */
     char *name;                 /* Joystick name - system dependent */
     int player_index;           /* Joystick player index, or -1 if unavailable */
@@ -87,7 +89,8 @@ struct _SDL_Joystick {
 /* Macro to combine a USB vendor ID and product ID into a single Uint32 value */
 #define MAKE_VIDPID(VID, PID)   (((Uint32)(VID))<<16|(PID))
 
-typedef struct _SDL_JoystickDriver {
+typedef struct _SDL_JoystickDriver
+{
     /* Function to scan the system for joysticks.
      * Joystick 0 should be the system default joystick.
      * This function should return 0, or -1 on an unrecoverable error.
@@ -117,21 +120,20 @@ typedef struct _SDL_JoystickDriver {
        This should fill the nbuttons and naxes fields of the joystick structure.
        It returns 0, or -1 if there is an error.
      */
-    int (*Open)(SDL_Joystick *joystick, int device_index);
+    int (*Open)(SDL_Joystick * joystick, int device_index);
 
     /* Rumble functionality */
-    int (*Rumble)(SDL_Joystick *joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble,
-                  Uint32 duration_ms);
+    int (*Rumble)(SDL_Joystick * joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble, Uint32 duration_ms);
 
     /* Function to update the state of a joystick - called as a device poll.
      * This function shouldn't update the joystick structure directly,
      * but instead should call SDL_PrivateJoystick*() to deliver events
      * and update joystick device state.
      */
-    void (*Update)(SDL_Joystick *joystick);
+    void (*Update)(SDL_Joystick * joystick);
 
     /* Function to close a joystick after use */
-    void (*Close)(SDL_Joystick *joystick);
+    void (*Close)(SDL_Joystick * joystick);
 
     /* Function to perform any system-specific joystick related cleanup */
     void (*Quit)(void);

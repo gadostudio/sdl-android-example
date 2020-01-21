@@ -36,15 +36,11 @@
 
 
 #if !SDL_EVENTS_DISABLED
-
 #include "../../events/SDL_events_c.h"
-
 #endif
 
 #if !TARGET_OS_TV
-
 #import <CoreMotion/CoreMotion.h>
-
 #endif
 
 #ifdef SDL_JOYSTICK_MFI
@@ -88,7 +84,8 @@ static int numjoysticks = 0;
 int SDL_AppleTVRemoteOpenedAsJoystick = 0;
 
 static SDL_JoystickDeviceItem *
-GetDeviceForIndex(int device_index) {
+GetDeviceForIndex(int device_index)
+{
     SDL_JoystickDeviceItem *device = deviceList;
     int i = 0;
 
@@ -104,7 +101,8 @@ GetDeviceForIndex(int device_index) {
 }
 
 static void
-IOS_AddMFIJoystickDevice(SDL_JoystickDeviceItem *device, GCController *controller) {
+IOS_AddMFIJoystickDevice(SDL_JoystickDeviceItem *device, GCController *controller)
+{
 #ifdef SDL_JOYSTICK_MFI
     const Uint16 VENDOR_APPLE = 0x05AC;
     const Uint16 VENDOR_MICROSOFT = 0x045e;
@@ -258,7 +256,8 @@ IOS_AddMFIJoystickDevice(SDL_JoystickDeviceItem *device, GCController *controlle
 }
 
 static void
-IOS_AddJoystickDevice(GCController *controller, SDL_bool accelerometer) {
+IOS_AddJoystickDevice(GCController *controller, SDL_bool accelerometer)
+{
     SDL_JoystickDeviceItem *device = deviceList;
 
 #if TARGET_OS_TV
@@ -296,8 +295,7 @@ IOS_AddJoystickDevice(GCController *controller, SDL_bool accelerometer) {
         device->nbuttons = 0;
 
         /* Use the accelerometer name as a GUID. */
-        SDL_memcpy(&device->guid.data, device->name,
-                   SDL_min(sizeof(SDL_JoystickGUID), SDL_strlen(device->name)));
+        SDL_memcpy(&device->guid.data, device->name, SDL_min(sizeof(SDL_JoystickGUID), SDL_strlen(device->name)));
 #endif /* TARGET_OS_TV */
     } else if (controller) {
         IOS_AddMFIJoystickDevice(device, controller);
@@ -319,7 +317,8 @@ IOS_AddJoystickDevice(GCController *controller, SDL_bool accelerometer) {
 }
 
 static SDL_JoystickDeviceItem *
-IOS_RemoveJoystickDevice(SDL_JoystickDeviceItem *device) {
+IOS_RemoveJoystickDevice(SDL_JoystickDeviceItem *device)
+{
     SDL_JoystickDeviceItem *prev = NULL;
     SDL_JoystickDeviceItem *next = NULL;
     SDL_JoystickDeviceItem *item = deviceList;
@@ -388,54 +387,55 @@ SDL_AppleTVRemoteRotationHintChanged(void *udata, const char *name, const char *
 #endif /* TARGET_OS_TV */
 
 static int
-IOS_JoystickInit(void) {
-    @autoreleasepool{
-            NSNotificationCenter * center = [NSNotificationCenter defaultCenter];
+IOS_JoystickInit(void)
+{
+    @autoreleasepool {
+        NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
 
 #if !TARGET_OS_TV
-            if (SDL_GetHintBoolean(SDL_HINT_ACCELEROMETER_AS_JOYSTICK, SDL_TRUE)) {
-                /* Default behavior, accelerometer as joystick */
-                IOS_AddJoystickDevice(nil, SDL_TRUE);
-            }
+        if (SDL_GetHintBoolean(SDL_HINT_ACCELEROMETER_AS_JOYSTICK, SDL_TRUE)) {
+            /* Default behavior, accelerometer as joystick */
+            IOS_AddJoystickDevice(nil, SDL_TRUE);
+        }
 #endif /* !TARGET_OS_TV */
 
 #ifdef SDL_JOYSTICK_MFI
-            /* GameController.framework was added in iOS 7. */
-            if (![GCController class]) {
-                return 0;
-            }
+        /* GameController.framework was added in iOS 7. */
+        if (![GCController class]) {
+            return 0;
+        }
 
-            for (GCController *controller in [GCController controllers]) {
-                IOS_AddJoystickDevice(controller, SDL_FALSE);
-            }
+        for (GCController *controller in [GCController controllers]) {
+            IOS_AddJoystickDevice(controller, SDL_FALSE);
+        }
 
 #if TARGET_OS_TV
-            SDL_AddHintCallback(SDL_HINT_APPLE_TV_REMOTE_ALLOW_ROTATION,
-                                SDL_AppleTVRemoteRotationHintChanged, NULL);
+        SDL_AddHintCallback(SDL_HINT_APPLE_TV_REMOTE_ALLOW_ROTATION,
+                            SDL_AppleTVRemoteRotationHintChanged, NULL);
 #endif /* TARGET_OS_TV */
 
-            connectObserver = [center addObserverForName:GCControllerDidConnectNotification
-                                                  object:nil
-                                                   queue:nil
-                                              usingBlock:^(NSNotification *note) {
-                                                  GCController *controller = note.object;
-                                                  IOS_AddJoystickDevice(controller, SDL_FALSE);
-                                              }];
+        connectObserver = [center addObserverForName:GCControllerDidConnectNotification
+                                              object:nil
+                                               queue:nil
+                                          usingBlock:^(NSNotification *note) {
+                                              GCController *controller = note.object;
+                                              IOS_AddJoystickDevice(controller, SDL_FALSE);
+                                          }];
 
-            disconnectObserver = [center addObserverForName:GCControllerDidDisconnectNotification
-                                                     object:nil
-                                                      queue:nil
-                                                 usingBlock:^(NSNotification *note) {
-                                                     GCController *controller = note.object;
-                                                     SDL_JoystickDeviceItem *device = deviceList;
-                                                     while (device != NULL) {
-                                                         if (device->controller == controller) {
-                                                             IOS_RemoveJoystickDevice(device);
-                                                             break;
-                                                         }
-                                                         device = device->next;
+        disconnectObserver = [center addObserverForName:GCControllerDidDisconnectNotification
+                                                 object:nil
+                                                  queue:nil
+                                             usingBlock:^(NSNotification *note) {
+                                                 GCController *controller = note.object;
+                                                 SDL_JoystickDeviceItem *device = deviceList;
+                                                 while (device != NULL) {
+                                                     if (device->controller == controller) {
+                                                         IOS_RemoveJoystickDevice(device);
+                                                         break;
                                                      }
-                                                 }];
+                                                     device = device->next;
+                                                 }
+                                             }];
 #endif /* SDL_JOYSTICK_MFI */
     }
 
@@ -443,28 +443,33 @@ IOS_JoystickInit(void) {
 }
 
 static int
-IOS_JoystickGetCount(void) {
+IOS_JoystickGetCount(void)
+{
     return numjoysticks;
 }
 
 static void
-IOS_JoystickDetect(void) {
+IOS_JoystickDetect(void)
+{
 }
 
 static const char *
-IOS_JoystickGetDeviceName(int device_index) {
+IOS_JoystickGetDeviceName(int device_index)
+{
     SDL_JoystickDeviceItem *device = GetDeviceForIndex(device_index);
     return device ? device->name : "Unknown";
 }
 
 static int
-IOS_JoystickGetDevicePlayerIndex(int device_index) {
+IOS_JoystickGetDevicePlayerIndex(int device_index)
+{
     SDL_JoystickDeviceItem *device = GetDeviceForIndex(device_index);
-    return device ? (int) device->controller.playerIndex : -1;
+    return device ? (int)device->controller.playerIndex : -1;
 }
 
 static SDL_JoystickGUID
-IOS_JoystickGetDeviceGUID(int device_index) {
+IOS_JoystickGetDeviceGUID( int device_index )
+{
     SDL_JoystickDeviceItem *device = GetDeviceForIndex(device_index);
     SDL_JoystickGUID guid;
     if (device) {
@@ -476,13 +481,15 @@ IOS_JoystickGetDeviceGUID(int device_index) {
 }
 
 static SDL_JoystickID
-IOS_JoystickGetDeviceInstanceID(int device_index) {
+IOS_JoystickGetDeviceInstanceID(int device_index)
+{
     SDL_JoystickDeviceItem *device = GetDeviceForIndex(device_index);
     return device ? device->instance_id : -1;
 }
 
 static int
-IOS_JoystickOpen(SDL_Joystick *joystick, int device_index) {
+IOS_JoystickOpen(SDL_Joystick * joystick, int device_index)
+{
     SDL_JoystickDeviceItem *device = GetDeviceForIndex(device_index);
     if (device == NULL) {
         return SDL_SetError("Could not open Joystick: no hardware device for the specified index");
@@ -498,31 +505,29 @@ IOS_JoystickOpen(SDL_Joystick *joystick, int device_index) {
 
     device->joystick = joystick;
 
-    @autoreleasepool{
-            if (device->accelerometer) {
+    @autoreleasepool {
+        if (device->accelerometer) {
 #if !TARGET_OS_TV
-                if (motionManager == nil) {
-                    motionManager = [[CMMotionManager
-                    alloc] init];
-                }
-
-                /* Shorter times between updates can significantly increase CPU usage. */
-                motionManager.accelerometerUpdateInterval = 0.1;
-                [motionManager
-                startAccelerometerUpdates];
-#endif /* !TARGET_OS_TV */
-            } else {
-#ifdef SDL_JOYSTICK_MFI
-                if (device->uses_pause_handler) {
-                    GCController *controller = device->controller;
-                    controller.controllerPausedHandler = ^(GCController *c) {
-                        if (joystick->hwdata) {
-                            ++joystick->hwdata->num_pause_presses;
-                        }
-                    };
-                }
-#endif /* SDL_JOYSTICK_MFI */
+            if (motionManager == nil) {
+                motionManager = [[CMMotionManager alloc] init];
             }
+
+            /* Shorter times between updates can significantly increase CPU usage. */
+            motionManager.accelerometerUpdateInterval = 0.1;
+            [motionManager startAccelerometerUpdates];
+#endif /* !TARGET_OS_TV */
+        } else {
+#ifdef SDL_JOYSTICK_MFI
+            if (device->uses_pause_handler) {
+                GCController *controller = device->controller;
+                controller.controllerPausedHandler = ^(GCController *c) {
+                    if (joystick->hwdata) {
+                        ++joystick->hwdata->num_pause_presses;
+                    }
+                };
+            }
+#endif /* SDL_JOYSTICK_MFI */
+        }
     }
     if (device->remote) {
         ++SDL_AppleTVRemoteOpenedAsJoystick;
@@ -532,18 +537,19 @@ IOS_JoystickOpen(SDL_Joystick *joystick, int device_index) {
 }
 
 static void
-IOS_AccelerometerUpdate(SDL_Joystick *joystick) {
+IOS_AccelerometerUpdate(SDL_Joystick * joystick)
+{
 #if !TARGET_OS_TV
     const float maxgforce = SDL_IPHONE_MAX_GFORCE;
     const SInt16 maxsint16 = 0x7FFF;
     CMAcceleration accel;
 
-    @autoreleasepool{
-            if (!motionManager.isAccelerometerActive) {
-                return;
-            }
+    @autoreleasepool {
+        if (!motionManager.isAccelerometerActive) {
+            return;
+        }
 
-            accel = motionManager.accelerometerData.acceleration;
+        accel = motionManager.accelerometerData.acceleration;
     }
 
     /*
@@ -568,9 +574,9 @@ IOS_AccelerometerUpdate(SDL_Joystick *joystick) {
     accel.z = SDL_min(SDL_max(accel.z, -maxgforce), maxgforce);
 
     /* pass in data mapped to range of SInt16 */
-    SDL_PrivateJoystickAxis(joystick, 0, (accel.x / maxgforce) * maxsint16);
+    SDL_PrivateJoystickAxis(joystick, 0,  (accel.x / maxgforce) * maxsint16);
     SDL_PrivateJoystickAxis(joystick, 1, -(accel.y / maxgforce) * maxsint16);
-    SDL_PrivateJoystickAxis(joystick, 2, (accel.z / maxgforce) * maxsint16);
+    SDL_PrivateJoystickAxis(joystick, 2,  (accel.z / maxgforce) * maxsint16);
 #endif /* !TARGET_OS_TV */
 }
 
@@ -601,7 +607,8 @@ IOS_MFIJoystickHatStateForDPad(GCControllerDirectionPad *dpad)
 #endif
 
 static void
-IOS_MFIJoystickUpdate(SDL_Joystick *joystick) {
+IOS_MFIJoystickUpdate(SDL_Joystick * joystick)
+{
 #if SDL_JOYSTICK_MFI
     @autoreleasepool {
         GCController *controller = joystick->hwdata->controller;
@@ -773,19 +780,20 @@ IOS_MFIJoystickUpdate(SDL_Joystick *joystick) {
 }
 
 static int
-IOS_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_rumble,
-                   Uint16 high_frequency_rumble, Uint32 duration_ms) {
+IOS_JoystickRumble(SDL_Joystick * joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble, Uint32 duration_ms)
+{
     return SDL_Unsupported();
 }
 
 static void
-IOS_JoystickUpdate(SDL_Joystick *joystick) {
+IOS_JoystickUpdate(SDL_Joystick * joystick)
+{
     SDL_JoystickDeviceItem *device = joystick->hwdata;
 
     if (device == NULL) {
         return;
     }
-
+    
     if (device->accelerometer) {
         IOS_AccelerometerUpdate(joystick);
     } else if (device->controller) {
@@ -794,7 +802,8 @@ IOS_JoystickUpdate(SDL_Joystick *joystick) {
 }
 
 static void
-IOS_JoystickClose(SDL_Joystick *joystick) {
+IOS_JoystickClose(SDL_Joystick * joystick)
+{
     SDL_JoystickDeviceItem *device = joystick->hwdata;
 
     if (device == NULL) {
@@ -803,19 +812,18 @@ IOS_JoystickClose(SDL_Joystick *joystick) {
 
     device->joystick = NULL;
 
-    @autoreleasepool{
-            if (device->accelerometer) {
+    @autoreleasepool {
+        if (device->accelerometer) {
 #if !TARGET_OS_TV
-                [motionManager
-                stopAccelerometerUpdates];
+            [motionManager stopAccelerometerUpdates];
 #endif /* !TARGET_OS_TV */
-            } else if (device->controller) {
+        } else if (device->controller) {
 #ifdef SDL_JOYSTICK_MFI
-                GCController *controller = device->controller;
-                controller.controllerPausedHandler = nil;
-                controller.playerIndex = -1;
+            GCController *controller = device->controller;
+            controller.controllerPausedHandler = nil;
+            controller.playerIndex = -1;
 #endif
-            }
+        }
     }
     if (device->remote) {
         --SDL_AppleTVRemoteOpenedAsJoystick;
@@ -823,33 +831,34 @@ IOS_JoystickClose(SDL_Joystick *joystick) {
 }
 
 static void
-IOS_JoystickQuit(void) {
-    @autoreleasepool{
+IOS_JoystickQuit(void)
+{
+    @autoreleasepool {
 #ifdef SDL_JOYSTICK_MFI
-    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+        NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
 
-    if (connectObserver) {
-        [center removeObserver:connectObserver name:GCControllerDidConnectNotification object:nil];
-        connectObserver = nil;
-    }
+        if (connectObserver) {
+            [center removeObserver:connectObserver name:GCControllerDidConnectNotification object:nil];
+            connectObserver = nil;
+        }
 
-    if (disconnectObserver) {
-        [center removeObserver:disconnectObserver name:GCControllerDidDisconnectNotification object:nil];
-        disconnectObserver = nil;
-    }
+        if (disconnectObserver) {
+            [center removeObserver:disconnectObserver name:GCControllerDidDisconnectNotification object:nil];
+            disconnectObserver = nil;
+        }
 
 #if TARGET_OS_TV
-    SDL_DelHintCallback(SDL_HINT_APPLE_TV_REMOTE_ALLOW_ROTATION,
-                        SDL_AppleTVRemoteRotationHintChanged, NULL);
+        SDL_DelHintCallback(SDL_HINT_APPLE_TV_REMOTE_ALLOW_ROTATION,
+                            SDL_AppleTVRemoteRotationHintChanged, NULL);
 #endif /* TARGET_OS_TV */
 #endif /* SDL_JOYSTICK_MFI */
 
-            while (deviceList != NULL) {
-                IOS_RemoveJoystickDevice(deviceList);
-            }
+        while (deviceList != NULL) {
+            IOS_RemoveJoystickDevice(deviceList);
+        }
 
 #if !TARGET_OS_TV
-            motionManager = nil;
+        motionManager = nil;
 #endif /* !TARGET_OS_TV */
     }
 
@@ -857,19 +866,19 @@ IOS_JoystickQuit(void) {
 }
 
 SDL_JoystickDriver SDL_IOS_JoystickDriver =
-        {
-                IOS_JoystickInit,
-                IOS_JoystickGetCount,
-                IOS_JoystickDetect,
-                IOS_JoystickGetDeviceName,
-                IOS_JoystickGetDevicePlayerIndex,
-                IOS_JoystickGetDeviceGUID,
-                IOS_JoystickGetDeviceInstanceID,
-                IOS_JoystickOpen,
-                IOS_JoystickRumble,
-                IOS_JoystickUpdate,
-                IOS_JoystickClose,
-                IOS_JoystickQuit,
-        };
+{
+    IOS_JoystickInit,
+    IOS_JoystickGetCount,
+    IOS_JoystickDetect,
+    IOS_JoystickGetDeviceName,
+    IOS_JoystickGetDevicePlayerIndex,
+    IOS_JoystickGetDeviceGUID,
+    IOS_JoystickGetDeviceInstanceID,
+    IOS_JoystickOpen,
+    IOS_JoystickRumble,
+    IOS_JoystickUpdate,
+    IOS_JoystickClose,
+    IOS_JoystickQuit,
+};
 
 /* vi: set ts=4 sw=4 expandtab: */

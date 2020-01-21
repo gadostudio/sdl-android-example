@@ -35,7 +35,8 @@
 #endif
 
 void *
-SDL_LoadObject(const char *sofile) {
+SDL_LoadObject(const char *sofile)
+{
     void *handle;
     const char *loaderror;
 
@@ -46,7 +47,7 @@ SDL_LoadObject(const char *sofile) {
     }
 #endif
 
-    handle = dlopen(sofile, RTLD_NOW | RTLD_LOCAL);
+    handle = dlopen(sofile, RTLD_NOW|RTLD_LOCAL);
     loaderror = (char *) dlerror();
     if (handle == NULL) {
         SDL_SetError("Failed loading %s: %s", sofile, loaderror);
@@ -55,7 +56,8 @@ SDL_LoadObject(const char *sofile) {
 }
 
 void *
-SDL_LoadFunction(void *handle, const char *name) {
+SDL_LoadFunction(void *handle, const char *name)
+{
     void *symbol = dlsym(handle, name);
     if (symbol == NULL) {
         /* append an underscore for platforms that need that. */
@@ -75,7 +77,8 @@ SDL_LoadFunction(void *handle, const char *name) {
 }
 
 void
-SDL_UnloadObject(void *handle) {
+SDL_UnloadObject(void *handle)
+{
     if (handle != NULL) {
         dlclose(handle);
     }

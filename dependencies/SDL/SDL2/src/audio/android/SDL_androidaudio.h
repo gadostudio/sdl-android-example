@@ -28,13 +28,13 @@
 /* Hidden "this" pointer for the audio functions */
 #define _THIS   SDL_AudioDevice *this
 
-struct SDL_PrivateAudioData {
+struct SDL_PrivateAudioData
+{
     /* Resume device if it was paused automatically */
     int resume;
 };
 
 void ANDROIDAUDIO_ResumeDevices(void);
-
 void ANDROIDAUDIO_PauseDevices(void);
 
 #endif /* SDL_androidaudio_h_ */

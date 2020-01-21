@@ -1113,35 +1113,41 @@ SDL_DINPUT_JoystickQuit(void)
 typedef struct JoyStick_DeviceData JoyStick_DeviceData;
 
 int
-SDL_DINPUT_JoystickInit(void) {
+SDL_DINPUT_JoystickInit(void)
+{
     return 0;
 }
 
 void
-SDL_DINPUT_JoystickDetect(JoyStick_DeviceData **pContext) {
+SDL_DINPUT_JoystickDetect(JoyStick_DeviceData **pContext)
+{
 }
 
 int
-SDL_DINPUT_JoystickOpen(SDL_Joystick *joystick, JoyStick_DeviceData *joystickdevice) {
+SDL_DINPUT_JoystickOpen(SDL_Joystick * joystick, JoyStick_DeviceData *joystickdevice)
+{
     return SDL_Unsupported();
 }
 
 int
-SDL_DINPUT_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_rumble,
-                          Uint16 high_frequency_rumble, Uint32 duration_ms) {
+SDL_DINPUT_JoystickRumble(SDL_Joystick * joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble, Uint32 duration_ms)
+{
     return SDL_Unsupported();
 }
 
 void
-SDL_DINPUT_JoystickUpdate(SDL_Joystick *joystick) {
+SDL_DINPUT_JoystickUpdate(SDL_Joystick * joystick)
+{
 }
 
 void
-SDL_DINPUT_JoystickClose(SDL_Joystick *joystick) {
+SDL_DINPUT_JoystickClose(SDL_Joystick * joystick)
+{
 }
 
 void
-SDL_DINPUT_JoystickQuit(void) {
+SDL_DINPUT_JoystickQuit(void)
+{
 }
 
 #endif /* SDL_JOYSTICK_DINPUT */

@@ -31,13 +31,13 @@
 
 struct SDL_PrivateAudioData {
     /* The hardware output channel. */
-    int channel;
+    int     channel;
     /* The raw allocated mixing buffer. */
-    Uint8 *rawbuf;
+    Uint8   *rawbuf;
     /* Individual mixing buffers. */
-    Uint8 *mixbufs[NUM_BUFFERS];
+    Uint8   *mixbufs[NUM_BUFFERS];
     /* Index of the next available mixing buffer. */
-    int next_buffer;
+    int     next_buffer;
 };
 
 #endif /* SDL_pspaudio_h_ */

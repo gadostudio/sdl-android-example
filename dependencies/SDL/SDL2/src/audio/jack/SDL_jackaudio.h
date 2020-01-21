@@ -28,7 +28,8 @@
 /* Hidden "this" pointer for the audio functions */
 #define _THIS SDL_AudioDevice *this
 
-struct SDL_PrivateAudioData {
+struct SDL_PrivateAudioData
+{
     jack_client_t *client;
     SDL_sem *iosem;
     float *iobuffer;

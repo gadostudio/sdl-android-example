@@ -33,18 +33,20 @@
 
 
 char *
-SDL_GetBasePath(void) {
+SDL_GetBasePath(void)
+{
     /* The current working directory is / on Android */
     SDL_Unsupported();
     return NULL;
 }
 
 char *
-SDL_GetPrefPath(const char *org, const char *app) {
+SDL_GetPrefPath(const char *org, const char *app)
+{
     const char *path = SDL_AndroidGetInternalStoragePath();
     if (path) {
-        size_t pathlen = SDL_strlen(path) + 2;
-        char *fullpath = (char *) SDL_malloc(pathlen);
+        size_t pathlen = SDL_strlen(path)+2;
+        char *fullpath = (char *)SDL_malloc(pathlen);
         if (!fullpath) {
             SDL_OutOfMemory();
             return NULL;

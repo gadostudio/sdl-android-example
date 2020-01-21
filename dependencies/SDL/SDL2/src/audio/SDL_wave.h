@@ -47,7 +47,8 @@
 #define EXTENSIBLE_CODE 0xFFFE
 
 /* Stores the WAVE format information. */
-typedef struct WaveFormat {
+typedef struct WaveFormat
+{
     Uint16 formattag;       /* Raw value of the first field in the fmt chunk data. */
     Uint16 encoding;        /* Actual encoding, possibly from the extensible header. */
     Uint16 channels;        /* Number of channels. */
@@ -90,7 +91,8 @@ typedef struct WaveFact {
 } WaveFact;
 
 /* Generic struct for the chunks in the WAVE file. */
-typedef struct WaveChunk {
+typedef struct WaveChunk
+{
     Uint32 fourcc;   /* FOURCC of the chunk. */
     Uint32 length;   /* Size of the chunk data. */
     Sint64 position; /* Position of the data in the stream. */
@@ -125,7 +127,8 @@ typedef enum WaveFactChunkHint {
     FactIgnore
 } WaveFactChunkHint;
 
-typedef struct WaveFile {
+typedef struct WaveFile
+{
     WaveChunk chunk;
     WaveFormat format;
     WaveFact fact;

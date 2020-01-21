@@ -24,17 +24,11 @@
 #include "SDL_fcitx.h"
 
 typedef SDL_bool (*_SDL_IME_Init)();
-
 typedef void (*_SDL_IME_Quit)();
-
 typedef void (*_SDL_IME_SetFocus)(SDL_bool);
-
 typedef void (*_SDL_IME_Reset)();
-
 typedef SDL_bool (*_SDL_IME_ProcessKeyEvent)(Uint32, Uint32);
-
 typedef void (*_SDL_IME_UpdateTextRect)(SDL_Rect *);
-
 typedef void (*_SDL_IME_PumpEvents)();
 
 static _SDL_IME_Init SDL_IME_Init_Real = NULL;
@@ -46,7 +40,8 @@ static _SDL_IME_UpdateTextRect SDL_IME_UpdateTextRect_Real = NULL;
 static _SDL_IME_PumpEvents SDL_IME_PumpEvents_Real = NULL;
 
 static void
-InitIME() {
+InitIME()
+{
     static SDL_bool inited = SDL_FALSE;
 #ifdef HAVE_FCITX_FRONTEND_H
     const char *im_module = SDL_getenv("SDL_IM_MODULE");
@@ -88,7 +83,8 @@ InitIME() {
 }
 
 SDL_bool
-SDL_IME_Init(void) {
+SDL_IME_Init(void)
+{
     InitIME();
 
     if (SDL_IME_Init_Real) {
@@ -110,25 +106,29 @@ SDL_IME_Init(void) {
 }
 
 void
-SDL_IME_Quit(void) {
+SDL_IME_Quit(void)
+{
     if (SDL_IME_Quit_Real)
         SDL_IME_Quit_Real();
 }
 
 void
-SDL_IME_SetFocus(SDL_bool focused) {
+SDL_IME_SetFocus(SDL_bool focused)
+{
     if (SDL_IME_SetFocus_Real)
         SDL_IME_SetFocus_Real(focused);
 }
 
 void
-SDL_IME_Reset(void) {
+SDL_IME_Reset(void)
+{
     if (SDL_IME_Reset_Real)
         SDL_IME_Reset_Real();
 }
 
 SDL_bool
-SDL_IME_ProcessKeyEvent(Uint32 keysym, Uint32 keycode) {
+SDL_IME_ProcessKeyEvent(Uint32 keysym, Uint32 keycode)
+{
     if (SDL_IME_ProcessKeyEvent_Real)
         return SDL_IME_ProcessKeyEvent_Real(keysym, keycode);
 
@@ -136,13 +136,15 @@ SDL_IME_ProcessKeyEvent(Uint32 keysym, Uint32 keycode) {
 }
 
 void
-SDL_IME_UpdateTextRect(SDL_Rect *rect) {
+SDL_IME_UpdateTextRect(SDL_Rect *rect)
+{
     if (SDL_IME_UpdateTextRect_Real)
         SDL_IME_UpdateTextRect_Real(rect);
 }
 
 void
-SDL_IME_PumpEvents() {
+SDL_IME_PumpEvents()
+{
     if (SDL_IME_PumpEvents_Real)
         SDL_IME_PumpEvents_Real();
 }

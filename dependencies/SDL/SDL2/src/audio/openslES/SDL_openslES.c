@@ -61,8 +61,8 @@ static SLObjectItf outputMixObject = NULL;
 /* static const SLEnvironmentalReverbSettings reverbSettings = SL_I3DL2_ENVIRONMENT_PRESET_STONECORRIDOR; */
 
 /* buffer queue player interfaces */
-static SLObjectItf bqPlayerObject = NULL;
-static SLPlayItf bqPlayerPlay = NULL;
+static SLObjectItf                   bqPlayerObject      = NULL;
+static SLPlayItf                     bqPlayerPlay        = NULL;
 static SLAndroidSimpleBufferQueueItf bqPlayerBufferQueue = NULL;
 #if 0
 static SLEffectSendItf               bqPlayerEffectSend  = NULL;
@@ -106,7 +106,8 @@ static void openslES_DetectDevices( int iscapture )
 static void openslES_DestroyEngine();
 
 static int
-openslES_CreateEngine() {
+openslES_CreateEngine()
+{
     SLresult result;
 
     LOGI("openSLES_CreateEngine()");
@@ -142,8 +143,8 @@ openslES_CreateEngine() {
     /* const SLInterfaceID ids[1] = { SL_IID_ENVIRONMENTALREVERB }; */
     /* const SLboolean req[1] = { SL_BOOLEAN_FALSE }; */
 
-    const SLInterfaceID ids[1] = {SL_IID_VOLUME};
-    const SLboolean req[1] = {SL_BOOLEAN_FALSE};
+    const SLInterfaceID ids[1] = { SL_IID_VOLUME };
+    const SLboolean req[1] = { SL_BOOLEAN_FALSE };
     result = (*engineEngine)->CreateOutputMix(engineEngine, &outputMixObject, 1, ids, req);
 
     if (SL_RESULT_SUCCESS != result) {
@@ -160,16 +161,16 @@ openslES_CreateEngine() {
     }
     return 1;
 
-    error:
+error:
     openslES_DestroyEngine();
     return 0;
 }
 
 static void openslES_DestroyPCMPlayer(_THIS);
-
 static void openslES_DestroyPCMRecorder(_THIS);
 
-static void openslES_DestroyEngine() {
+static void openslES_DestroyEngine()
+{
     LOGI("openslES_DestroyEngine()");
 
 //        openslES_DestroyPCMPlayer(this);
@@ -194,7 +195,8 @@ static void openslES_DestroyEngine() {
 
 /* this callback handler is called every time a buffer finishes playing */
 static void
-bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
+bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context)
+{
     struct SDL_PrivateAudioData *audiodata = (struct SDL_PrivateAudioData *) context;
     LOGV("SLES: Playback Callmeback");
     SDL_SemPost(audiodata->playsem);
@@ -202,7 +204,8 @@ bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
 }
 
 static int
-openslES_CreatePCMRecorder(_THIS) {
+openslES_CreatePCMRecorder(_THIS)
+{
 /*    struct SDL_PrivateAudioData *audiodata = (struct SDL_PrivateAudioData *) this->hidden; */
 
     LOGE("openslES_CreatePCMRecorder not implimented yet!");
@@ -210,14 +213,16 @@ openslES_CreatePCMRecorder(_THIS) {
 }
 
 static void
-openslES_DestroyPCMRecorder(_THIS) {
+openslES_DestroyPCMRecorder(_THIS)
+{
 /*    struct SDL_PrivateAudioData *audiodata = (struct SDL_PrivateAudioData *) this->hidden; */
 
     return;
 }
 
 static int
-openslES_CreatePCMPlayer(_THIS) {
+openslES_CreatePCMPlayer(_THIS)
+{
     struct SDL_PrivateAudioData *audiodata = (struct SDL_PrivateAudioData *) this->hidden;
     SLDataFormat_PCM format_pcm;
     SLresult result;
@@ -251,15 +256,14 @@ openslES_CreatePCMPlayer(_THIS) {
     SDL_CalculateAudioSpec(&this->spec);
 
     LOGI("Try to open %u hz %u bit chan %u %s samples %u",
-         this->spec.freq, SDL_AUDIO_BITSIZE(this->spec.format),
-         this->spec.channels, (this->spec.format & 0x1000) ? "BE" : "LE", this->spec.samples);
+          this->spec.freq, SDL_AUDIO_BITSIZE(this->spec.format),
+          this->spec.channels, (this->spec.format & 0x1000) ? "BE" : "LE", this->spec.samples);
 
     /* configure audio source */
-    SLDataLocator_AndroidSimpleBufferQueue loc_bufq = {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE,
-                                                       NUM_BUFFERS};
+    SLDataLocator_AndroidSimpleBufferQueue loc_bufq = { SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, NUM_BUFFERS };
 
-    format_pcm.formatType = SL_DATAFORMAT_PCM;
-    format_pcm.numChannels = this->spec.channels;
+    format_pcm.formatType    = SL_DATAFORMAT_PCM;
+    format_pcm.numChannels   = this->spec.channels;
     format_pcm.samplesPerSec = this->spec.freq * 1000;  /* / kilo Hz to milli Hz */
     format_pcm.bitsPerSample = SDL_AUDIO_BITSIZE(this->spec.format);
     format_pcm.containerSize = SDL_AUDIO_BITSIZE(this->spec.format);
@@ -295,57 +299,57 @@ openslES_CreatePCMPlayer(_THIS) {
 #define SL_ANDROID_SPEAKER_5DOT1 (SL_ANDROID_SPEAKER_QUAD | SL_SPEAKER_FRONT_CENTER  | SL_SPEAKER_LOW_FREQUENCY)
 #define SL_ANDROID_SPEAKER_7DOT1 (SL_ANDROID_SPEAKER_5DOT1 | SL_SPEAKER_SIDE_LEFT | SL_SPEAKER_SIDE_RIGHT)
 
-    switch (this->spec.channels) {
-        case 1:
-            format_pcm.channelMask = SL_SPEAKER_FRONT_LEFT;
-            break;
-        case 2:
-            format_pcm.channelMask = SL_ANDROID_SPEAKER_STEREO;
-            break;
-        case 3:
-            format_pcm.channelMask = SL_ANDROID_SPEAKER_STEREO | SL_SPEAKER_FRONT_CENTER;
-            break;
-        case 4:
-            format_pcm.channelMask = SL_ANDROID_SPEAKER_QUAD;
-            break;
-        case 5:
-            format_pcm.channelMask = SL_ANDROID_SPEAKER_QUAD | SL_SPEAKER_FRONT_CENTER;
-            break;
-        case 6:
-            format_pcm.channelMask = SL_ANDROID_SPEAKER_5DOT1;
-            break;
-        case 7:
-            format_pcm.channelMask = SL_ANDROID_SPEAKER_5DOT1 | SL_SPEAKER_BACK_CENTER;
-            break;
-        case 8:
-            format_pcm.channelMask = SL_ANDROID_SPEAKER_7DOT1;
-            break;
-        default:
-            /* Unknown number of channels, fall back to stereo */
-            this->spec.channels = 2;
-            format_pcm.channelMask = SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT;
-            break;
+    switch (this->spec.channels)
+    {
+    case 1:
+        format_pcm.channelMask = SL_SPEAKER_FRONT_LEFT;
+        break;
+    case 2:
+        format_pcm.channelMask = SL_ANDROID_SPEAKER_STEREO;
+        break;
+    case 3:
+        format_pcm.channelMask = SL_ANDROID_SPEAKER_STEREO | SL_SPEAKER_FRONT_CENTER;
+        break;
+    case 4:
+        format_pcm.channelMask = SL_ANDROID_SPEAKER_QUAD;
+        break;
+    case 5:
+        format_pcm.channelMask = SL_ANDROID_SPEAKER_QUAD | SL_SPEAKER_FRONT_CENTER;
+        break;
+    case 6:
+        format_pcm.channelMask = SL_ANDROID_SPEAKER_5DOT1;
+        break;
+    case 7:
+        format_pcm.channelMask = SL_ANDROID_SPEAKER_5DOT1 | SL_SPEAKER_BACK_CENTER;
+        break;
+    case 8:
+        format_pcm.channelMask = SL_ANDROID_SPEAKER_7DOT1;
+        break;
+    default:
+        /* Unknown number of channels, fall back to stereo */
+        this->spec.channels = 2;
+        format_pcm.channelMask = SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT;
+        break;
     }
 
-    SLDataSource audioSrc = {&loc_bufq, &format_pcm};
+    SLDataSource audioSrc = { &loc_bufq, &format_pcm };
 
     /* configure audio sink */
-    SLDataLocator_OutputMix loc_outmix = {SL_DATALOCATOR_OUTPUTMIX, outputMixObject};
-    SLDataSink audioSnk = {&loc_outmix, NULL};
+    SLDataLocator_OutputMix loc_outmix = { SL_DATALOCATOR_OUTPUTMIX, outputMixObject };
+    SLDataSink audioSnk = { &loc_outmix, NULL };
 
     /* create audio player */
     const SLInterfaceID ids[2] = {
-            SL_IID_ANDROIDSIMPLEBUFFERQUEUE,
-            SL_IID_VOLUME
+        SL_IID_ANDROIDSIMPLEBUFFERQUEUE,
+        SL_IID_VOLUME
     };
 
     const SLboolean req[2] = {
-            SL_BOOLEAN_TRUE,
-            SL_BOOLEAN_FALSE,
+        SL_BOOLEAN_TRUE,
+        SL_BOOLEAN_FALSE,
     };
 
-    result = (*engineEngine)->CreateAudioPlayer(engineEngine, &bqPlayerObject, &audioSrc, &audioSnk,
-                                                2, ids, req);
+    result = (*engineEngine)->CreateAudioPlayer(engineEngine, &bqPlayerObject, &audioSrc, &audioSnk, 2, ids, req);
     if (SL_RESULT_SUCCESS != result) {
         LOGE("CreateAudioPlayer failed");
         goto failed;
@@ -366,8 +370,7 @@ openslES_CreatePCMPlayer(_THIS) {
     }
 
     /* get the buffer queue interface */
-    result = (*bqPlayerObject)->GetInterface(bqPlayerObject, SL_IID_ANDROIDSIMPLEBUFFERQUEUE,
-                                             &bqPlayerBufferQueue);
+    result = (*bqPlayerObject)->GetInterface(bqPlayerObject, SL_IID_ANDROIDSIMPLEBUFFERQUEUE, &bqPlayerBufferQueue);
     if (SL_RESULT_SUCCESS != result) {
         LOGE("SL_IID_BUFFERQUEUE interface get failed");
         goto failed;
@@ -375,8 +378,7 @@ openslES_CreatePCMPlayer(_THIS) {
 
     /* register callback on the buffer queue */
     /* context is '(SDL_PrivateAudioData *)this->hidden' */
-    result = (*bqPlayerBufferQueue)->RegisterCallback(bqPlayerBufferQueue, bqPlayerCallback,
-                                                      this->hidden);
+    result = (*bqPlayerBufferQueue)->RegisterCallback(bqPlayerBufferQueue, bqPlayerCallback, this->hidden);
     if (SL_RESULT_SUCCESS != result) {
         LOGE("RegisterCallback failed");
         goto failed;
@@ -436,7 +438,7 @@ openslES_CreatePCMPlayer(_THIS) {
 
     return 0;
 
-    failed:
+failed:
 
     openslES_DestroyPCMPlayer(this);
 
@@ -444,7 +446,8 @@ openslES_CreatePCMPlayer(_THIS) {
 }
 
 static void
-openslES_DestroyPCMPlayer(_THIS) {
+openslES_DestroyPCMPlayer(_THIS)
+{
     struct SDL_PrivateAudioData *audiodata = (struct SDL_PrivateAudioData *) this->hidden;
     SLresult result;
 
@@ -484,7 +487,8 @@ openslES_DestroyPCMPlayer(_THIS) {
 }
 
 static int
-openslES_OpenDevice(_THIS, void *handle, const char *devname, int iscapture) {
+openslES_OpenDevice(_THIS, void *handle, const char *devname, int iscapture)
+{
     this->hidden = (struct SDL_PrivateAudioData *) SDL_calloc(1, (sizeof *this->hidden));
     if (this->hidden == NULL) {
         return SDL_OutOfMemory();
@@ -500,7 +504,8 @@ openslES_OpenDevice(_THIS, void *handle, const char *devname, int iscapture) {
 }
 
 static void
-openslES_CloseDevice(_THIS) {
+openslES_CloseDevice(_THIS)
+{
     /* struct SDL_PrivateAudioData *audiodata = (struct SDL_PrivateAudioData *) this->hidden; */
 
     if (this->iscapture) {
@@ -517,7 +522,8 @@ openslES_CloseDevice(_THIS) {
 }
 
 static void
-openslES_WaitDevice(_THIS) {
+openslES_WaitDevice(_THIS)
+{
     struct SDL_PrivateAudioData *audiodata = (struct SDL_PrivateAudioData *) this->hidden;
 
     LOGV("openslES_WaitDevice( )");
@@ -542,7 +548,8 @@ openslES_WaitDevice(_THIS) {
 /* okay.. */
 
 static Uint8 *
-openslES_GetDeviceBuf(_THIS) {
+openslES_GetDeviceBuf(_THIS)
+{
     struct SDL_PrivateAudioData *audiodata = (struct SDL_PrivateAudioData *) this->hidden;
 
     LOGV("openslES_GetDeviceBuf( )");
@@ -550,16 +557,15 @@ openslES_GetDeviceBuf(_THIS) {
 }
 
 static void
-openslES_PlayDevice(_THIS) {
+openslES_PlayDevice(_THIS)
+{
     struct SDL_PrivateAudioData *audiodata = (struct SDL_PrivateAudioData *) this->hidden;
     SLresult result;
 
     LOGV("======openslES_PlayDevice( )======");
 
     /* Queue it up */
-    result = (*bqPlayerBufferQueue)->Enqueue(bqPlayerBufferQueue,
-                                             audiodata->pmixbuff[audiodata->next_buffer],
-                                             this->spec.size);
+    result = (*bqPlayerBufferQueue)->Enqueue(bqPlayerBufferQueue, audiodata->pmixbuff[audiodata->next_buffer], this->spec.size);
 
     audiodata->next_buffer++;
     if (audiodata->next_buffer >= NUM_BUFFERS) {
@@ -576,7 +582,8 @@ openslES_PlayDevice(_THIS) {
 }
 
 static int
-openslES_Init(SDL_AudioDriverImpl *impl) {
+openslES_Init(SDL_AudioDriverImpl * impl)
+{
     LOGI("openslES_Init() called");
 
     if (!openslES_CreateEngine()) {
@@ -587,16 +594,16 @@ openslES_Init(SDL_AudioDriverImpl *impl) {
 
     /* Set the function pointers */
     /* impl->DetectDevices = openslES_DetectDevices; */
-    impl->OpenDevice = openslES_OpenDevice;
-    impl->CloseDevice = openslES_CloseDevice;
-    impl->PlayDevice = openslES_PlayDevice;
-    impl->GetDeviceBuf = openslES_GetDeviceBuf;
-    impl->Deinitialize = openslES_DestroyEngine;
-    impl->WaitDevice = openslES_WaitDevice;
+    impl->OpenDevice    = openslES_OpenDevice;
+    impl->CloseDevice   = openslES_CloseDevice;
+    impl->PlayDevice    = openslES_PlayDevice;
+    impl->GetDeviceBuf  = openslES_GetDeviceBuf;
+    impl->Deinitialize  = openslES_DestroyEngine;
+    impl->WaitDevice    = openslES_WaitDevice;
 
     /* and the capabilities */
-    impl->HasCaptureSupport = 0;        /* TODO */
-    impl->OnlyHasDefaultOutputDevice = 1;
+    impl->HasCaptureSupport             = 0;        /* TODO */
+    impl->OnlyHasDefaultOutputDevice    = 1;
     /* impl->OnlyHasDefaultInputDevice  = 1; */
 
     LOGI("openslES_Init() - succes");
@@ -606,10 +613,11 @@ openslES_Init(SDL_AudioDriverImpl *impl) {
 }
 
 AudioBootStrap openslES_bootstrap = {
-        "openslES", "opensl ES audio driver", openslES_Init, 0
+    "openslES", "opensl ES audio driver", openslES_Init, 0
 };
 
-void openslES_ResumeDevices() {
+void openslES_ResumeDevices()
+{
     if (bqPlayerPlay != NULL) {
         /* set the player's state to 'playing' */
         SLresult result = (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_PLAYING);
@@ -619,7 +627,8 @@ void openslES_ResumeDevices() {
     }
 }
 
-void openslES_PauseDevices() {
+void openslES_PauseDevices()
+{
     if (bqPlayerPlay != NULL) {
         /* set the player's state to 'paused' */
         SLresult result = (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_PAUSED);

@@ -30,7 +30,8 @@
 
 
 static int
-SDL_SendDrop(SDL_Window *window, const SDL_EventType evtype, const char *data) {
+SDL_SendDrop(SDL_Window *window, const SDL_EventType evtype, const char *data)
+{
     static SDL_bool app_is_dropping = SDL_FALSE;
     int posted = 0;
 
@@ -76,17 +77,20 @@ SDL_SendDrop(SDL_Window *window, const SDL_EventType evtype, const char *data) {
 }
 
 int
-SDL_SendDropFile(SDL_Window *window, const char *file) {
+SDL_SendDropFile(SDL_Window *window, const char *file)
+{
     return SDL_SendDrop(window, SDL_DROPFILE, file);
 }
 
 int
-SDL_SendDropText(SDL_Window *window, const char *text) {
+SDL_SendDropText(SDL_Window *window, const char *text)
+{
     return SDL_SendDrop(window, SDL_DROPTEXT, text);
 }
 
 int
-SDL_SendDropComplete(SDL_Window *window) {
+SDL_SendDropComplete(SDL_Window *window)
+{
     return SDL_SendDrop(window, SDL_DROPCOMPLETE, NULL);
 }
 

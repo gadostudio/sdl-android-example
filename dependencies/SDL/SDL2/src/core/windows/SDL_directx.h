@@ -27,7 +27,6 @@
 
 #include "SDL_windows.h"
 #include <mmsystem.h>
-
 #ifndef WIN32
 #define WIN32
 #endif
@@ -40,7 +39,7 @@
 
 /* Error codes not yet included in Win32 API header files */
 #ifndef MAKE_HRESULT
-#define MAKE_HRESULT(sev, fac, code) \
+#define MAKE_HRESULT(sev,fac,code) \
     ((HRESULT)(((unsigned long)(sev)<<31) | ((unsigned long)(fac)<<16) | ((unsigned long)(code))))
 #endif
 
@@ -104,9 +103,7 @@
 #ifdef HAVE_DINPUT_H
 #include <dinput.h>
 #else
-typedef struct {
-    int unused;
-} DIDEVICEINSTANCE;
+typedef struct { int unused; } DIDEVICEINSTANCE;
 #endif
 
 #endif /* SDL_directx_h_ */

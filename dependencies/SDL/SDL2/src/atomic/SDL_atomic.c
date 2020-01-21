@@ -39,8 +39,8 @@
 #if defined(HAVE_GCC_ATOMICS)
 # if defined(__clang__)
 #   if __has_builtin(__atomic_load_n)
-/* !!! FIXME: this advertises as available in the NDK but uses an external symbol we don't have.
-   It might be in a later NDK or we might need an extra library? --ryan. */
+      /* !!! FIXME: this advertises as available in the NDK but uses an external symbol we don't have.
+         It might be in a later NDK or we might need an extra library? --ryan. */
 #     if !defined(__ANDROID__)
 #       define HAVE_ATOMIC_LOAD_N 1
 #     endif
@@ -127,7 +127,8 @@ leaveLock(void *a)
 
 
 SDL_bool
-SDL_AtomicCAS(SDL_atomic_t *a, int oldval, int newval) {
+SDL_AtomicCAS(SDL_atomic_t *a, int oldval, int newval)
+{
 #ifdef HAVE_MSC_ATOMICS
     return (_InterlockedCompareExchange((long*)&a->value, (long)newval, (long)oldval) == (long)oldval);
 #elif defined(HAVE_WATCOM_ATOMICS)
@@ -152,12 +153,13 @@ SDL_AtomicCAS(SDL_atomic_t *a, int oldval, int newval) {
 
     return retval;
 #else
-#error Please define your platform.
+    #error Please define your platform.
 #endif
 }
 
 SDL_bool
-SDL_AtomicCASPtr(void **a, void *oldval, void *newval) {
+SDL_AtomicCASPtr(void **a, void *oldval, void *newval)
+{
 #if defined(HAVE_MSC_ATOMICS) && (_M_IX86)
     return (_InterlockedCompareExchange((long*)a, (long)newval, (long)oldval) == (long)oldval);
 #elif defined(HAVE_MSC_ATOMICS) && (!_M_IX86)
@@ -184,12 +186,13 @@ SDL_AtomicCASPtr(void **a, void *oldval, void *newval) {
 
     return retval;
 #else
-#error Please define your platform.
+    #error Please define your platform.
 #endif
 }
 
 int
-SDL_AtomicSet(SDL_atomic_t *a, int v) {
+SDL_AtomicSet(SDL_atomic_t *a, int v)
+{
 #ifdef HAVE_MSC_ATOMICS
     return _InterlockedExchange((long*)&a->value, v);
 #elif defined(HAVE_WATCOM_ATOMICS)
@@ -209,8 +212,9 @@ SDL_AtomicSet(SDL_atomic_t *a, int v) {
 #endif
 }
 
-void *
-SDL_AtomicSetPtr(void **a, void *v) {
+void*
+SDL_AtomicSetPtr(void **a, void *v)
+{
 #if defined(HAVE_MSC_ATOMICS) && (_M_IX86)
     return (void *) _InterlockedExchange((long *)a, (long) v);
 #elif defined(HAVE_MSC_ATOMICS) && (!_M_IX86)
@@ -231,7 +235,8 @@ SDL_AtomicSetPtr(void **a, void *v) {
 }
 
 int
-SDL_AtomicAdd(SDL_atomic_t *a, int v) {
+SDL_AtomicAdd(SDL_atomic_t *a, int v)
+{
 #ifdef HAVE_MSC_ATOMICS
     return _InterlockedExchangeAdd((long*)&a->value, v);
 #elif defined(HAVE_WATCOM_ATOMICS)
@@ -257,7 +262,8 @@ SDL_AtomicAdd(SDL_atomic_t *a, int v) {
 }
 
 int
-SDL_AtomicGet(SDL_atomic_t *a) {
+SDL_AtomicGet(SDL_atomic_t *a)
+{
 #ifdef HAVE_ATOMIC_LOAD_N
     return __atomic_load_n(&a->value, __ATOMIC_SEQ_CST);
 #else
@@ -270,7 +276,8 @@ SDL_AtomicGet(SDL_atomic_t *a) {
 }
 
 void *
-SDL_AtomicGetPtr(void **a) {
+SDL_AtomicGetPtr(void **a)
+{
 #ifdef HAVE_ATOMIC_LOAD_N
     return __atomic_load_n(a, __ATOMIC_SEQ_CST);
 #else
@@ -287,12 +294,14 @@ SDL_AtomicGetPtr(void **a) {
 #endif
 
 void
-SDL_MemoryBarrierReleaseFunction(void) {
+SDL_MemoryBarrierReleaseFunction(void)
+{
     SDL_MemoryBarrierRelease();
 }
 
 void
-SDL_MemoryBarrierAcquireFunction(void) {
+SDL_MemoryBarrierAcquireFunction(void)
+{
     SDL_MemoryBarrierAcquire();
 }
 

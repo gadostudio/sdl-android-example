@@ -4,7 +4,6 @@
 
 
 extern int Android_AddHaptic(int device_id, const char *name);
-
 extern int Android_RemoveHaptic(int device_id);
 
 
